@@ -9,6 +9,10 @@ on:
     paths:
       - "hardware/**"
       - ".github/workflows/kicad-checks.yml"
+  schedule:
+    # Mondays at 13:00 UTC — catches drift (e.g. a new KiCad image) even
+    # when no PR has touched hardware/ recently. Always runs against main.
+    - cron: "0 13 * * 1"
   workflow_dispatch:
 
 jobs:

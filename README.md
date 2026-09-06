@@ -69,7 +69,9 @@ git submodule update --init --recursive
 ## CI
 
 `.github/workflows/kicad-checks.yml` runs KiCad's headless checks on every
-push/PR that touches `hardware/`: ERC on each project's schematic, and DRC
+push/PR that touches `hardware/`, plus weekly against `main` (Mondays) to
+catch drift even when nothing's changed recently: ERC on each project's
+schematic, and DRC
 on its board once one exists (v1 and v1.5 are schematic/wiring-only, no
 custom PCB — that starts with v2). Only error-severity findings fail the
 build; warnings (e.g. library-resolution notices from the CI container not
