@@ -15,7 +15,7 @@ jobs:
   kicad:
     runs-on: ubuntu-latest
     container:
-      image: kicad/kicad:nightly
+      image: kicad/kicad:10.0
       options: --user root
     steps:
       - uses: actions/checkout@v4
