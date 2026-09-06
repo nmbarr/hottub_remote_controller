@@ -29,12 +29,15 @@ jobs:
             sch="$dir/$name.kicad_sch"
             if [ -f "$sch" ]; then
               echo "== ERC: $sch =="
+              report="$dir/$name-erc.json"
               kicad-cli sch erc \
-                --output "$dir/$name-erc.json" \
+                --output "$report" \
                 --format json \
-                --exit-code-violations \
+                --severity-error \
+                --severity-warning \
                 "$sch" || status=1
-              cat "$dir/$name-erc.json"
+              cat "$report"
+              python3 .github/scripts/kicad-report-has-errors.py "$report" || status=1
             fi
           done
           exit $status
@@ -48,11 +51,15 @@ jobs:
             pcb="$dir/$name.kicad_pcb"
             if [ -f "$pcb" ]; then
               echo "== DRC: $pcb =="
+              report="$dir/$name-drc.json"
               kicad-cli pcb drc \
-                --output "$dir/$name-drc.json" \
+                --output "$report" \
                 --format json \
-                --exit-code-violations \
+                --severity-error \
+                --severity-warning \
                 "$pcb" || status=1
+              cat "$report"
+              python3 .github/scripts/kicad-report-has-errors.py "$report" || status=1
             fi
           done
           exit $status
