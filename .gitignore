@@ -19,3 +19,18 @@ mx.scratch
 # OS junk
 .DS_Store
 Thumbs.db
+
+# KiCad backups, autosaves, and generated caches
+*.bak
+*.bck
+*-backups/
+_autosave-*
+*-save.pro
+*-save.kicad_sch
+*-save.kicad_pcb
+*.lck
+fp-info-cache
+
+# KiCad per-user local project state (like .vscode personal settings above,
+# skip this if you're intentionally sharing it)
+*.kicad_prl
