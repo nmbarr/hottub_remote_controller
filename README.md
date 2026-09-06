@@ -6,11 +6,9 @@ of only via the tub's built-in panel.
 
 ## Status
 
-Early hardware design phase. The project started as STM32-based sensor
-firmware (accelerometer/gyro, humidity, DS18B20 temperature probe) and has
-since pivoted to an ESP32-based board that taps the spa pack's control bus
-over RS485; the old STM32 firmware has been removed while the new hardware
-and firmware are designed.
+Early hardware design phase, centered on an ESP32-based board that taps the
+spa pack's control bus over RS485. Firmware for the new hardware has not
+been written yet.
 
 ## Hardware
 
