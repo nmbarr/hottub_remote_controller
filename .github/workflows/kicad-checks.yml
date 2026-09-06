@@ -34,6 +34,7 @@ jobs:
                 --format json \
                 --exit-code-violations \
                 "$sch" || status=1
+              cat "$dir/$name-erc.json"
             fi
           done
           exit $status
