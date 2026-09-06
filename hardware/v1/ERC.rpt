@@ -1,0 +1,21 @@
+ERC report (2026-09-05T23:07:51, Encoding UTF8)
+Report includes: Errors, Warnings
+
+***** Sheet /
+[power_pin_not_driven]: Input Power pin not driven by any Output Power pins
+    ; error
+    @(3950 mils, 5100 mils): Symbol U1 Pin 14 [GND, Power input, Line]
+[power_pin_not_driven]: Input Power pin not driven by any Output Power pins
+    ; error
+    @(4050 mils, 2300 mils): Symbol U1 Pin 1 [3V3, Power input, Line]
+[lib_symbol_mismatch]: Symbol 'Conn_01x02' doesn't match copy in library 'Connector_Generic'
+    ; warning
+    @(8450 mils, 3500 mils): Symbol J1 [Conn_01x02]
+
+ ** ERC messages: 3  Errors 2  Warnings 1
+
+ ** Ignored checks:
+    - Global label only appears once in the schematic
+    - Four connection points are joined together
+    - SPICE model issue
+    - Assigned footprint doesn't match footprint filters

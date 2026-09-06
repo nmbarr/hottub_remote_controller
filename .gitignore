@@ -15,6 +15,7 @@ mx.scratch
 # settings committed — skip it if you're intentionally sharing them)
 .vscode/ipch/
 .vscode/browse.vc.db*
+.history/
 
 # OS junk
 .DS_Store
