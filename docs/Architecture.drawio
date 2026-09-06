@@ -1,0 +1,318 @@
+<mxfile host="Electron">
+  <diagram name="Page-1" id="PeRUupMc-eX8eUdWqz7K">
+    <mxGraphModel dx="2357" dy="1402" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-50" parent="1" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
+          <mxGeometry height="440" width="1080" x="160" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-28" parent="1" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
+          <mxGeometry height="320" width="1360" x="160" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-35" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;fillColor=#76608a;strokeColor=#432D57;fontColor=#ffffff;verticalAlign=top;" value="RJ45 Breakout Board" vertex="1">
+          <mxGeometry height="240" width="280" x="920" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-2" edge="1" parent="1" source="4wOi1GZxRdI6M9_IUt-j-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="73MPKOkxpp3jrMIxWe7u-1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="440" y="1080" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-18" edge="1" parent="1" source="4wOi1GZxRdI6M9_IUt-j-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="73MPKOkxpp3jrMIxWe7u-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4wOi1GZxRdI6M9_IUt-j-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;fillColor=#a20025;strokeColor=#6F0000;fontColor=#ffffff;" value="Power Supply&lt;br&gt;&lt;font style=&quot;font-size: 12px; font-weight: normal;&quot;&gt;&lt;br&gt;Buck Converter | 3.3V&lt;/font&gt;" vertex="1">
+          <mxGeometry height="80" width="160" x="360" y="960" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-9" edge="1" parent="1" source="73MPKOkxpp3jrMIxWe7u-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="73MPKOkxpp3jrMIxWe7u-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-11" connectable="0" parent="73MPKOkxpp3jrMIxWe7u-9" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="UART" vertex="1">
+          <mxGeometry relative="1" x="-0.0331" y="-1" as="geometry">
+            <mxPoint x="1" y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-10" edge="1" parent="1" source="73MPKOkxpp3jrMIxWe7u-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="73MPKOkxpp3jrMIxWe7u-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;fillColor=#60a917;strokeColor=#2D7600;fontColor=#ffffff;" value="Processor&lt;br&gt;&lt;font style=&quot;font-size: 12px; font-weight: normal;&quot;&gt;&lt;br&gt;ESP32&lt;/font&gt;" vertex="1">
+          <mxGeometry height="80" width="160" x="360" y="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-4" edge="1" parent="1" source="73MPKOkxpp3jrMIxWe7u-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="4wOi1GZxRdI6M9_IUt-j-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="&lt;b&gt;USB&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="80" x="200" y="1040" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;fillColor=#0050ef;strokeColor=#001DBC;fontColor=#ffffff;" value="RS485 Transceiver&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size: 12px; font-weight: normal;&quot;&gt;MAX3485&lt;/font&gt;" vertex="1">
+          <mxGeometry height="80" width="160" x="600" y="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="v2-rj45-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="&lt;b&gt;RJ45 #1&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="80" x="840" y="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="v2-rs485-edge-1" edge="1" parent="1" source="73MPKOkxpp3jrMIxWe7u-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="v2-rj45-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v2-rs485-label-1" connectable="0" parent="v2-rs485-edge-1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="RS485" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v2-frontpanel" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;dashed=1;fillColor=#d79b00;strokeColor=#996600;fontColor=#ffffff;" value="Hot Tub Front Panel" vertex="1">
+          <mxGeometry height="80" width="160" x="1000" y="1000" as="geometry" />
+        </mxCell>
+        <mxCell id="v2-edge-frontpanel" edge="1" parent="1" source="v2-rj45-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="v2-frontpanel">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-48" connectable="0" parent="v2-edge-frontpanel" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="RS485" vertex="1">
+          <mxGeometry relative="1" x="-0.0819" y="3" as="geometry">
+            <mxPoint x="3" y="3" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v2-rj45-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="&lt;b&gt;RJ45 #2&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="80" x="840" y="1200" as="geometry" />
+        </mxCell>
+        <mxCell id="v2-rs485-edge-2" edge="1" parent="1" source="73MPKOkxpp3jrMIxWe7u-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="v2-rj45-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v2-rs485-label-2" connectable="0" parent="v2-rs485-edge-2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="RS485" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v2-title" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontStyle=1;" value="V2 &amp;mdash; Custom PCB" vertex="1">
+          <mxGeometry height="30" width="720" x="200" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="v1-title" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontStyle=1;" value="V1 &amp;mdash; ESP32 DevKitC (initial build)" vertex="1">
+          <mxGeometry height="30" width="760" x="200" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="v1-usb" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="&lt;b&gt;USB&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="80" x="200" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="v1-devkitc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;fillColor=#60a917;strokeColor=#2D7600;fontColor=#ffffff;" value="ESP32 DevKitC&lt;br&gt;&lt;font style=&quot;font-size: 12px; font-weight: normal;&quot;&gt;&lt;br&gt;Onboard USB-UART + 3.3V reg&lt;/font&gt;" vertex="1">
+          <mxGeometry height="80" width="200" x="360" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="v1-usb-edge" edge="1" parent="1" source="v1-devkitc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="v1-usb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v1-rs485" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;fillColor=#0050ef;strokeColor=#001DBC;fontColor=#ffffff;" value="RS485 Transceiver&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size: 12px; font-weight: normal;&quot;&gt;MAX3485&lt;/font&gt;" vertex="1">
+          <mxGeometry height="80" width="160" x="640" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="v1-uart-edge" edge="1" parent="1" source="v1-devkitc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="v1-rs485">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v1-uart-label" connectable="0" parent="v1-uart-edge" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="UART" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-38" edge="1" parent="1" source="v1-tohottub" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" target="73MPKOkxpp3jrMIxWe7u-36">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v1-tohottub" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="&lt;b&gt;RJ45 #1&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="80" x="960" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="v1-rs485-edge" edge="1" parent="1" source="v1-rs485" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="v1-tohottub">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v1-rs485-label" connectable="0" parent="v1-rs485-edge" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="RS485" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-37" edge="1" parent="1" source="73MPKOkxpp3jrMIxWe7u-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" target="73MPKOkxpp3jrMIxWe7u-36">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-30" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="&lt;b&gt;RJ45 #2&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="80" x="960" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-32" edge="1" parent="1" source="73MPKOkxpp3jrMIxWe7u-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="73MPKOkxpp3jrMIxWe7u-30">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="800" y="260.0000000000001" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-34" connectable="0" parent="73MPKOkxpp3jrMIxWe7u-32" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="RS485" vertex="1">
+          <mxGeometry relative="1" x="0.0194" y="-1" as="geometry">
+            <mxPoint x="-1" y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-33" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;dashed=1;fillColor=#d79b00;strokeColor=#996600;fontColor=#ffffff;" value="Hot Tub Front Panel" vertex="1">
+          <mxGeometry height="80" width="160" x="640" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-36" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="&lt;b&gt;Screw Terminals&lt;/b&gt;" vertex="1">
+          <mxGeometry height="160" width="80" x="1080" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-39" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;verticalAlign=top;labelBorderColor=none;dashed=1;fillColor=#d79b00;strokeColor=#996600;fontColor=#ffffff;" value="Mach-7 Control Board" vertex="1">
+          <mxGeometry height="240" width="200" x="1280" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-40" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=16;fontStyle=1" value="&lt;span&gt;J10&lt;/span&gt;" vertex="1">
+          <mxGeometry height="40" width="80" x="1340" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-41" edge="1" parent="1" source="73MPKOkxpp3jrMIxWe7u-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="73MPKOkxpp3jrMIxWe7u-40">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-42" connectable="0" parent="73MPKOkxpp3jrMIxWe7u-41" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="RS485" vertex="1">
+          <mxGeometry relative="1" x="-0.0046" y="1" as="geometry">
+            <mxPoint x="-10" y="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-box" parent="1" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" value="" vertex="1">
+          <mxGeometry height="200" width="760" x="1560" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=16;fontStyle=1;" value="Legend" vertex="1">
+          <mxGeometry height="24" width="200" x="1580" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-sw-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#60a917;strokeColor=#2D7600;" value="" vertex="1">
+          <mxGeometry height="20" width="30" x="1580" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-label-1" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;" value="Our processor (ESP32)" vertex="1">
+          <mxGeometry height="20" width="280" x="1620" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-sw-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a20025;strokeColor=#6F0000;" value="" vertex="1">
+          <mxGeometry height="20" width="30" x="1580" y="116" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-label-2" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;" value="Our power regulation" vertex="1">
+          <mxGeometry height="20" width="280" x="1620" y="116" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-sw-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;" value="" vertex="1">
+          <mxGeometry height="20" width="30" x="1580" y="148" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-label-3" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;" value="Our RS485 transceiver" vertex="1">
+          <mxGeometry height="20" width="280" x="1620" y="148" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-sw-4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" value="" vertex="1">
+          <mxGeometry height="20" width="30" x="1940" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-label-4" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;" value="Connector / interconnect (no active function)" vertex="1">
+          <mxGeometry height="20" width="360" x="1980" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-sw-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#d79b00;strokeColor=#996600;" value="" vertex="1">
+          <mxGeometry height="20" width="30" x="1940" y="116" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-label-5" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;" value="Existing hot tub hardware (not our design)" vertex="1">
+          <mxGeometry height="20" width="360" x="1980" y="116" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-sw-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#76608a;strokeColor=#432D57;" value="" vertex="1">
+          <mxGeometry height="20" width="30" x="1940" y="148" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-label-6" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;" value="Purchased off-the-shelf module" vertex="1">
+          <mxGeometry height="20" width="360" x="1980" y="148" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-sw-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;" value="" vertex="1">
+          <mxGeometry height="20" width="30" x="1580" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-label-7" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;" value="Our analog front-end / signal conditioning" vertex="1">
+          <mxGeometry height="20" width="360" x="1620" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-45" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;verticalAlign=top;labelBorderColor=none;dashed=1;fillColor=#d79b00;strokeColor=#996600;fontColor=#ffffff;" value="Mach-7 Control Board" vertex="1">
+          <mxGeometry height="120" width="200" x="1000" y="1160" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-46" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=16;fontStyle=1" value="&lt;span&gt;J10&lt;/span&gt;" vertex="1">
+          <mxGeometry height="40" width="80" x="1060" y="1200" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-47" edge="1" parent="1" source="v2-rj45-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="73MPKOkxpp3jrMIxWe7u-46">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="73MPKOkxpp3jrMIxWe7u-49" connectable="0" parent="73MPKOkxpp3jrMIxWe7u-47" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="RS485" vertex="1">
+          <mxGeometry relative="1" x="-0.3558" y="1" as="geometry">
+            <mxPoint x="-5" y="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v15-box" parent="1" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" value="" vertex="1">
+          <mxGeometry height="440" width="1000" x="160" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="v15-title" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontStyle=1;" value="V1.5 &amp;mdash; ESP32 DevKitC + Water Chemistry Sensors" vertex="1">
+          <mxGeometry height="30" width="800" x="200" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="v15-usb" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="&lt;b&gt;USB&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="80" x="200" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="v15-devkitc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;fillColor=#60a917;strokeColor=#2D7600;fontColor=#ffffff;" value="ESP32 DevKitC&lt;br&gt;&lt;font style=&quot;font-size: 12px; font-weight: normal;&quot;&gt;&lt;br&gt;Onboard USB-UART + 3.3V reg&lt;/font&gt;" vertex="1">
+          <mxGeometry height="80" width="200" x="360" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="v15-usb-edge" edge="1" parent="1" source="v15-devkitc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="v15-usb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v15-rs485" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;fillColor=#0050ef;strokeColor=#001DBC;fontColor=#ffffff;" value="RS485 Transceiver&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size: 12px; font-weight: normal;&quot;&gt;MAX3485&lt;/font&gt;" vertex="1">
+          <mxGeometry height="80" width="160" x="640" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="v15-uart-edge" edge="1" parent="1" source="v15-devkitc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="v15-rs485">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v15-uart-label" connectable="0" parent="v15-uart-edge" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="UART" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v15-tohottub" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="&lt;b&gt;To Hot Tub&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;(RJ45 tap &amp;mdash; see V1)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="200" x="880" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="v15-rs485-edge" edge="1" parent="1" source="v15-rs485" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="v15-tohottub">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v15-rs485-label" connectable="0" parent="v15-rs485-edge" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="RS485" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v15-jst-ph" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="&lt;b&gt;Gravity&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="80" x="420" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="v15-edge-devkitc-jstph" edge="1" parent="1" source="v15-devkitc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="v15-jst-ph">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v15-analog-label-ph" connectable="0" parent="v15-edge-devkitc-jstph" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Analog" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v15-ph-sensor" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;fillColor=#76608a;strokeColor=#432D57;fontColor=#ffffff;" value="pH Probe + Cond. Board&lt;br&gt;&lt;font style=&quot;font-size: 12px; font-weight: normal;&quot;&gt;&lt;br&gt;DFRobot (analog)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="240" x="340" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="v15-edge-jstph-phsensor" edge="1" parent="1" source="v15-jst-ph" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="v15-ph-sensor">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v15-jst-orp" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="&lt;b&gt;Gravity&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="80" x="700" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="v15-edge-devkitc-jstorp" edge="1" parent="1" source="v15-devkitc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="v15-jst-orp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v15-analog-label-orp" connectable="0" parent="v15-edge-devkitc-jstorp" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Analog" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v15-orp-sensor" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;fillColor=#76608a;strokeColor=#432D57;fontColor=#ffffff;" value="ORP Probe + Cond. Board&lt;br&gt;&lt;font style=&quot;font-size: 12px; font-weight: normal;&quot;&gt;&lt;br&gt;DFRobot (analog)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="240" x="620" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="v15-edge-jstorp-orpsensor" edge="1" parent="1" source="v15-jst-orp" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="v15-orp-sensor">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v2-analog-fe" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;" value="Analog Front-End&lt;br&gt;&lt;font style=&quot;font-size: 12px; font-weight: normal;&quot;&gt;pH/ORP conditioning&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="160" x="360" y="1260" as="geometry" />
+        </mxCell>
+        <mxCell id="v2-edge-processor-fe" edge="1" parent="1" source="73MPKOkxpp3jrMIxWe7u-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="v2-analog-fe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v2-edge-processor-fe-label" connectable="0" parent="v2-edge-processor-fe" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="ADC" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v2-ph-probe" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;fillColor=#76608a;strokeColor=#432D57;fontColor=#ffffff;" value="pH Probe&lt;br&gt;&lt;font style=&quot;font-size: 12px; font-weight: normal;&quot;&gt;DFRobot (electrode)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="50" width="140" x="180" y="1255" as="geometry" />
+        </mxCell>
+        <mxCell id="v2-edge-fe-ph" edge="1" parent="1" source="v2-analog-fe" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="v2-ph-probe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v2-orp-probe" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fontStyle=1;fillColor=#76608a;strokeColor=#432D57;fontColor=#ffffff;" value="ORP Probe&lt;br&gt;&lt;font style=&quot;font-size: 12px; font-weight: normal;&quot;&gt;DFRobot (electrode)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="50" width="140" x="560" y="1255" as="geometry" />
+        </mxCell>
+        <mxCell id="v2-edge-fe-orp" edge="1" parent="1" source="v2-analog-fe" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" target="v2-orp-probe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

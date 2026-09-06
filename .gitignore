@@ -34,3 +34,7 @@ fp-info-cache
 # KiCad per-user local project state (like .vscode personal settings above,
 # skip this if you're intentionally sharing it)
 *.kicad_prl
+
+# draw.io backup files
+*.drawio.bkp
+*.drawio.dtmp
