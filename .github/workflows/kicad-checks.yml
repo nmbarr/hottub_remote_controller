@@ -1,0 +1,65 @@
+name: KiCad checks
+
+on:
+  push:
+    paths:
+      - "hardware/**"
+      - ".github/workflows/kicad-checks.yml"
+  pull_request:
+    paths:
+      - "hardware/**"
+      - ".github/workflows/kicad-checks.yml"
+  workflow_dispatch:
+
+jobs:
+  kicad:
+    runs-on: ubuntu-latest
+    container: kicad/kicad:9.0
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run ERC on each hardware project's schematic
+        run: |
+          status=0
+          for pro in $(find hardware -name '*.kicad_pro'); do
+            dir=$(dirname "$pro")
+            name=$(basename "$pro" .kicad_pro)
+            sch="$dir/$name.kicad_sch"
+            if [ -f "$sch" ]; then
+              echo "== ERC: $sch =="
+              kicad-cli sch erc \
+                --output "$dir/$name-erc.json" \
+                --format json \
+                --exit-code-violations \
+                "$sch" || status=1
+            fi
+          done
+          exit $status
+
+      - name: Run DRC on each hardware project's board (if any)
+        run: |
+          status=0
+          for pro in $(find hardware -name '*.kicad_pro'); do
+            dir=$(dirname "$pro")
+            name=$(basename "$pro" .kicad_pro)
+            pcb="$dir/$name.kicad_pcb"
+            if [ -f "$pcb" ]; then
+              echo "== DRC: $pcb =="
+              kicad-cli pcb drc \
+                --output "$dir/$name-drc.json" \
+                --format json \
+                --exit-code-violations \
+                "$pcb" || status=1
+            fi
+          done
+          exit $status
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kicad-reports
+          path: |
+            hardware/**/*-erc.json
+            hardware/**/*-drc.json
+          if-no-files-found: warn

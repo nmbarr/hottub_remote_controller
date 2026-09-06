@@ -65,3 +65,10 @@ This repo uses a git submodule for shared drivers:
 ```
 git submodule update --init --recursive
 ```
+
+## CI
+
+`.github/workflows/kicad-checks.yml` runs KiCad's headless checks on every
+push/PR that touches `hardware/`: ERC on each project's schematic, and DRC
+on its board once one exists (v1 and v1.5 are schematic/wiring-only, no
+custom PCB — that starts with v2).
