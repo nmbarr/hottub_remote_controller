@@ -22,6 +22,28 @@ been written yet.
 
 See `docs/Architecture.drawio` for the system architecture diagram.
 
+### Hardware roadmap
+
+The architecture diagram lays out three planned revisions:
+
+- **V1 — ESP32 DevKitC (initial build).** An ESP32 DevKitC (using its
+  onboard USB-UART and 3.3V regulator) driving a MAX3485 RS485 transceiver.
+  The transceiver taps into the hot tub's existing RS485 wiring between the
+  front panel and the Mach-7 control board through an off-the-shelf RJ45
+  breakout board and screw terminals — no cutting or splicing of the
+  existing harness.
+- **V1.5 — + water chemistry sensors.** Same V1 hardware and RS485 tap,
+  with off-the-shelf DFRobot pH and ORP probes (each with its own analog
+  conditioning board) added on, wired into the DevKitC's analog inputs via
+  Gravity/JST connectors.
+- **V2 — custom PCB.** Replaces the DevKitC with a purpose-built board: a
+  bare ESP32 as the processor, a dedicated buck-converter power supply, and
+  the MAX3485 transceiver wired directly to two onboard RJ45 jacks (one to
+  the front panel, one to the Mach-7 control board), removing the external
+  breakout/screw-terminal board. The purchased DFRobot conditioning boards
+  are also replaced by a custom analog front-end that conditions the raw pH
+  and ORP electrodes directly for the ESP32's ADC.
+
 ## Docs
 
 - [`docs/wifi.md`](docs/wifi.md) — plan for exposing live sensor data over
