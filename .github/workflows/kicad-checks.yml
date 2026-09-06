@@ -24,6 +24,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: DEBUG discover KiCad library table templates
+        run: |
+          echo "HOME=$HOME"
+          kicad-cli version || true
+          echo "== template library tables under /usr/share =="
+          find /usr/share -maxdepth 5 \( -name 'sym-lib-table' -o -name 'fp-lib-table' \) 2>/dev/null
+          echo "== existing kicad config under HOME =="
+          find "$HOME" -maxdepth 6 -iname '*kicad*' 2>/dev/null
+
       - name: Run ERC on each hardware project's schematic
         run: |
           status=0
