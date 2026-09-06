@@ -1,67 +1,59 @@
 # WiFi sensor access
 
-Goal: view live sensor data (accel/gyro, temp/humidity, DS18B20 temp) from a
-phone instead of only via UART/teleplot over a wired debug connection.
+Goal: view live hot tub status (and, once v1.5's water chemistry sensors are
+in, pH/ORP readings) from a phone instead of only via a wired debug
+connection.
 
-Onboard WiFi module: Inventek ISM43362-M3G-L44 (SPI + AT-command protocol).
-Driver/protocol layer will come from ST's X-CUBE-WIFI1 middleware, vendored
-into this repo the same way CMSIS/HAL are today, with a thin per-board SPI
-port (CS/reset/data-ready IRQ wiring) written here.
-
-## Why not in libdrivers
-
-Considered adding a WiFi driver to `libdrivers` alongside the sensor drivers.
-Decided against it: everything in `libdrivers` today is a small,
-vendor-agnostic register-bus driver (handle + a few registers + read/write),
-testable off-target with no HAL dependency. The ISM43362 is a networking
-co-processor with connection state and AT-command framing — a different
-shape of problem that doesn't reuse much of what's already there. Using ST's
-own middleware directly avoids reinventing a WiFi stack.
+WiFi: the ESP32 has WiFi built into the SoC, so there's no separate WiFi
+module or driver to write — connectivity and the HTTP server both come from
+ESP-IDF's own `esp_wifi`/`esp_http_server` components, used directly rather
+than vendored into this repo. (This replaces an earlier plan, from when the
+board was STM32-based, to drive an external Inventek ISM43362 WiFi module
+over SPI via ST's X-CUBE-WIFI1 middleware — moot now that WiFi is native to
+the processor.)
 
 ## v1 — local, single device
 
-Scope: the board joins a local WiFi network and serves current sensor
-readings to one phone on the same network. No internet routing involved.
+Scope: the board joins a local WiFi network and serves current status to one
+phone on the same network. No internet routing involved.
 
 Decisions:
-- **Transport**: minimal on-device HTTP server. Phone hits a URL in a
-  regular browser (or `curl`), board responds with current readings as JSON.
+- **Transport**: minimal on-device HTTP server (`esp_http_server`). Phone
+  hits a URL in a regular browser (or `curl`), board responds with current
+  status as JSON.
   ```
-  GET http://192.168.1.42/sensors
+  GET http://192.168.1.42/status
 
-  {"temp_F":72.1,"humidity":41.2,...}
+  {"water_temp_F":102.4,"ph":7.4,...}
   ```
 - **Push vs. poll**: phone polls. Board has no need to track connected
   clients or push timing; fits naturally with the HTTP request/response
   model above.
 - **Discovery**: hardcoded/static IP for v1 — configure a static IP (or a
   DHCP reservation) and read/type it in. No mDNS responder needed yet.
-- **Credentials**: SSID/password hardcoded at build time, same pattern as
-  the I2C addresses and sensor configs already hardcoded in `main.c`.
+- **Credentials**: SSID/password hardcoded at build time.
 
 Explicit non-goals for v1: authentication, multiple simultaneous clients,
 access from outside the local network.
 
 Open implementation questions (need deciding before/while implementing):
 - **Credentials in git**: hardcoding SSID/password at build time is fine,
-  but not directly in a tracked file — `main.c` is committed to a public
-  repo. Use a gitignored header (e.g. `wifi_credentials.h`, included by
-  `main.c`, with a checked-in `.example` template) rather than a literal
-  `#define` in tracked source.
+  but not directly in a tracked file. Use a gitignored header (e.g.
+  `wifi_credentials.h`, with a checked-in `.example` template) rather than a
+  literal `#define` in tracked source.
 - **Where does the current reading live for the HTTP handler to read?**
-  `temp_F`, `gyro_x`, etc. are all local variables inside a single
-  `while(1)` iteration in `main.c` today — nothing persists them anywhere an
-  HTTP request handler could reach. Need some shared "latest reading" state.
-- **Blocking vs. non-blocking connection handling**: servicing an incoming
-  HTTP request is a "wait for something to happen" operation. Deciding
-  whether that's polled non-blockingly each loop iteration (same pattern the
-  DS18B20 conversion state machine already uses) or handled some other way,
-  rather than discovering it mid-implementation.
+  RS485 status (and later pH/ORP) polling and the HTTP handler will run as
+  separate FreeRTOS tasks; need some shared "latest reading" state between
+  them (e.g. a small struct behind a mutex, or a queue).
+- **Blocking vs. non-blocking connection handling**: `esp_http_server` runs
+  request handlers on their own task, so this is largely handled by the
+  framework — but still need to decide how the RS485 polling loop and WiFi
+  task interact so one doesn't starve the other.
 
 ## v2 — remote, anyone from anywhere
 
-Scope: any client, not just one on the same local network, can check sensor
-data from anywhere on the internet.
+Scope: any client, not just one on the same local network, can check status
+from anywhere on the internet.
 
 This is a substantially bigger jump than v1, not just "open a port":
 - The board can't safely be directly internet-exposed (no port-forwarding a

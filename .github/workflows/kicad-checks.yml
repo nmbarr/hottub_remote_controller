@@ -1,0 +1,75 @@
+name: KiCad checks
+
+on:
+  push:
+    paths:
+      - "hardware/**"
+      - ".github/workflows/kicad-checks.yml"
+  pull_request:
+    paths:
+      - "hardware/**"
+      - ".github/workflows/kicad-checks.yml"
+  workflow_dispatch:
+
+jobs:
+  kicad:
+    runs-on: ubuntu-latest
+    container:
+      image: kicad/kicad:10.0
+      options: --user root
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run ERC on each hardware project's schematic
+        run: |
+          status=0
+          for pro in $(find hardware -name '*.kicad_pro'); do
+            dir=$(dirname "$pro")
+            name=$(basename "$pro" .kicad_pro)
+            sch="$dir/$name.kicad_sch"
+            if [ -f "$sch" ]; then
+              echo "== ERC: $sch =="
+              report="$dir/$name-erc.json"
+              kicad-cli sch erc \
+                --output "$report" \
+                --format json \
+                --severity-error \
+                --severity-warning \
+                "$sch" || status=1
+              cat "$report"
+              python3 .github/scripts/kicad-report-has-errors.py "$report" || status=1
+            fi
+          done
+          exit $status
+
+      - name: Run DRC on each hardware project's board (if any)
+        run: |
+          status=0
+          for pro in $(find hardware -name '*.kicad_pro'); do
+            dir=$(dirname "$pro")
+            name=$(basename "$pro" .kicad_pro)
+            pcb="$dir/$name.kicad_pcb"
+            if [ -f "$pcb" ]; then
+              echo "== DRC: $pcb =="
+              report="$dir/$name-drc.json"
+              kicad-cli pcb drc \
+                --output "$report" \
+                --format json \
+                --severity-error \
+                --severity-warning \
+                "$pcb" || status=1
+              cat "$report"
+              python3 .github/scripts/kicad-report-has-errors.py "$report" || status=1
+            fi
+          done
+          exit $status
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kicad-reports
+          path: |
+            hardware/**/*-erc.json
+            hardware/**/*-drc.json
+          if-no-files-found: warn
