@@ -73,7 +73,9 @@ push/PR that touches `hardware/`, plus weekly against `main` (Mondays) to
 catch drift even when nothing's changed recently: ERC on each project's
 schematic, and DRC
 on its board once one exists (v1 and v1.5 are schematic/wiring-only, no
-custom PCB — that starts with v2). Only error-severity findings fail the
-build; warnings (e.g. library-resolution notices from the CI container not
-having the same installed KiCad libraries as a dev machine) are printed to
-the log for visibility but don't block.
+custom PCB — that starts with v2). The workflow seeds KiCad's default
+global library tables before running so stock libraries resolve the same
+as on a normal install; only error-severity findings fail the build, and
+remaining warnings (currently just `PCM_Espressif`, a library installed
+locally via KiCad's Plugin & Content Manager rather than vendored into the
+repo) print to the log for visibility but don't block.
