@@ -1,4 +1,4 @@
-name: KiCad checks
+name: CI
 
 on:
   push:
