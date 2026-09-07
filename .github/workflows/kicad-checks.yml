@@ -2,13 +2,11 @@ name: KiCad checks
 
 on:
   push:
-    paths:
-      - "hardware/**"
-      - ".github/workflows/kicad-checks.yml"
   pull_request:
-    paths:
-      - "hardware/**"
-      - ".github/workflows/kicad-checks.yml"
+  # No paths filter: the `kicad` job is a required status check on main,
+  # and a required check that a path filter skips never reports at all —
+  # GitHub shows it as permanently "pending" and blocks the merge forever.
+  # Running it on every push/PR is cheap (~30s) and keeps the check honest.
   schedule:
     # Mondays at 13:00 UTC — catches drift (e.g. a new KiCad image) even
     # when no PR has touched hardware/ recently. Always runs against main.

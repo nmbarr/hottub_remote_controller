@@ -1,5 +1,7 @@
 # Hot Tub Remote Controller
 
+[![KiCad checks](https://github.com/nmbarr/hottub_remote_controller/actions/workflows/kicad-checks.yml/badge.svg)](https://github.com/nmbarr/hottub_remote_controller/actions/workflows/kicad-checks.yml)
+
 Hardware and firmware for a remote monitor/controller that taps into a hot
 tub's control system, aiming to expose status and control over WiFi instead
 of only via the tub's built-in panel.
@@ -69,9 +71,10 @@ git submodule update --init --recursive
 ## CI
 
 `.github/workflows/kicad-checks.yml` runs KiCad's headless checks on every
-push/PR that touches `hardware/`, plus weekly against `main` (Mondays) to
-catch drift even when nothing's changed recently: ERC on each project's
-schematic, and DRC
+push and PR (it's a required status check on `main`, so it always runs
+rather than being skipped by a path filter), plus weekly against `main`
+(Mondays) to catch drift even when nothing's changed recently: ERC on each
+project's schematic, and DRC
 on its board once one exists (v1 and v1.5 are schematic/wiring-only, no
 custom PCB — that starts with v2). The workflow seeds KiCad's default
 global library tables before running so stock libraries resolve the same
