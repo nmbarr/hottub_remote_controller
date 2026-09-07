@@ -3,7 +3,7 @@ name: CI
 on:
   push:
   pull_request:
-  # No paths filter: the `kicad` job is a required status check on main,
+  # No paths filter: the `hardware` job is a required status check on main,
   # and a required check that a path filter skips never reports at all —
   # GitHub shows it as permanently "pending" and blocks the merge forever.
   # Running it on every push/PR is cheap (~30s) and keeps the check honest.
@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  kicad:
+  hardware:
     runs-on: ubuntu-latest
     container:
       image: kicad/kicad:10.0
