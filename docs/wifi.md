@@ -1,70 +1,160 @@
-# WiFi sensor access
+# WiFi access
 
 Goal: view live hot tub status (and, once v1.5's water chemistry sensors are
 in, pH/ORP readings) from a phone instead of only via a wired debug
-connection.
+connection — and, from v2 on, send commands back the other way.
 
 WiFi: the ESP32 has WiFi built into the SoC, so there's no separate WiFi
-module or driver to write — connectivity and the HTTP server both come from
-ESP-IDF's own `esp_wifi`/`esp_http_server` components, used directly rather
-than vendored into this repo. (This replaces an earlier plan, from when the
-board was STM32-based, to drive an external Inventek ISM43362 WiFi module
-over SPI via ST's X-CUBE-WIFI1 middleware — moot now that WiFi is native to
-the processor.)
+module or driver to write — connectivity and the MQTT client both come from
+ESP-IDF's own `esp_wifi`/`esp-mqtt` components, used directly rather than
+vendored into this repo. (This replaces an earlier plan, from when the board
+was STM32-based, to drive an external Inventek ISM43362 WiFi module over SPI
+via ST's X-CUBE-WIFI1 middleware — moot now that WiFi is native to the
+processor.)
 
-## v1 — local, single device
+## Architecture
 
-Scope: the board joins a local WiFi network and serves current status to one
-phone on the same network. No internet routing involved.
+Both versions use the same topology; they differ in scope, not transport. A
+Raspberry Pi on the LAN acts as the IoT server:
+
+```
+  ESP32  --outbound MQTT-->  Mosquitto  <-->  Node-RED  -->  dashboard
+ (RS485                     (broker,          (flows,        (phone)
+  to spa pack)               on the Pi)        logic, UI)
+```
+
+- **Broker**: Mosquitto on the Pi. The ESP32 makes a single outbound
+  connection to it and never accepts inbound connections itself. This is
+  what makes v2's remote access possible without ever exposing the board.
+- **Logic/UI**: Node-RED on the same Pi, subscribing and publishing through
+  `mqtt in`/`mqtt out` nodes. `node-red-dashboard` provides the phone UI
+  (gauges for temp/pH/ORP, later a slider for the setpoint), so there's no
+  custom frontend in this repo and UI changes never require reflashing the
+  board.
+- **Firmware side**: `esp-mqtt` (`mqtt_client`), which ships with ESP-IDF —
+  no vendored dependency added.
+
+## Topic map
+
+| Topic | Dir | Retain | QoS | Payload | Version |
+| --- | --- | --- | --- | --- | --- |
+| `hottub/status` | ESP32 → | yes | 1 | `online` / `offline` (LWT) | v1 |
+| `hottub/state` | ESP32 → | yes | 0 | JSON status blob | v1 |
+| `hottub/cmd/setpoint` | → ESP32 | **no** | 1 | setpoint in °F, e.g. `102` | v2 |
+
+## v1 — local, read-only telemetry
+
+Scope: the board joins the local WiFi network and publishes current status to
+the broker. Node-RED renders it on a phone on the same network. No internet
+routing, no commands.
 
 Decisions:
-- **Transport**: minimal on-device HTTP server (`esp_http_server`). Phone
-  hits a URL in a regular browser (or `curl`), board responds with current
-  status as JSON.
+- **Transport**: MQTT publish to Mosquitto. The board publishes; it does not
+  serve. This is strictly less firmware than an on-device HTTP server — no
+  request handlers, no connection handling, no client tracking, since the
+  broker does all of that.
+- **Push, not poll**: the RS485 task publishes `hottub/state` after each
+  poll cycle. Because the topic is retained, a phone or a restarted Node-RED
+  gets current values immediately on connect rather than waiting for the
+  next update.
+- **No shared "latest reading" state needed.** The task that produces the
+  reading is the task that publishes it, so there's no struct-behind-a-mutex
+  handoff between a polling loop and a server task. (This was an open
+  question under the earlier HTTP design; the MQTT shape removes it.)
+- **Payload**: one JSON blob on `hottub/state`, not a topic per field. Keeps
+  the firmware to a single serializer; Node-RED splits fields out for the
+  dashboard with a `json` node.
   ```
-  GET http://192.168.1.42/status
-
-  {"water_temp_F":102.4,"ph":7.4,...}
+  hottub/state  {"water_temp_F":102.4,"ph":7.4,...}
   ```
-- **Push vs. poll**: phone polls. Board has no need to track connected
-  clients or push timing; fits naturally with the HTTP request/response
-  model above.
-- **Discovery**: hardcoded/static IP for v1 — configure a static IP (or a
-  DHCP reservation) and read/type it in. No mDNS responder needed yet.
-- **Credentials**: SSID/password hardcoded at build time.
+- **LWT** on `hottub/status` so the dashboard can distinguish live readings
+  from stale ones left behind by a board that dropped off.
+- **Addressing**: the ESP32 no longer needs a fixed address of its own,
+  since nothing connects to it — only the *broker* needs a stable address
+  (static IP or DHCP reservation on the Pi), hardcoded at build time.
+- **Credentials**: WiFi SSID/password and broker host/user/password
+  hardcoded at build time.
 
-Explicit non-goals for v1: authentication, multiple simultaneous clients,
-access from outside the local network.
+Explicit non-goals for v1: access from outside the local network, any
+command path, TLS, history/logging.
 
 Open implementation questions (need deciding before/while implementing):
-- **Credentials in git**: hardcoding SSID/password at build time is fine,
-  but not directly in a tracked file. Use a gitignored header (e.g.
-  `wifi_credentials.h`, with a checked-in `.example` template) rather than a
-  literal `#define` in tracked source.
-- **Where does the current reading live for the HTTP handler to read?**
-  RS485 status (and later pH/ORP) polling and the HTTP handler will run as
-  separate FreeRTOS tasks; need some shared "latest reading" state between
-  them (e.g. a small struct behind a mutex, or a queue).
-- **Blocking vs. non-blocking connection handling**: `esp_http_server` runs
-  request handlers on their own task, so this is largely handled by the
-  framework — but still need to decide how the RS485 polling loop and WiFi
-  task interact so one doesn't starve the other.
+- **Credentials in git**: hardcoding at build time is fine, but not directly
+  in a tracked file. Use a gitignored header (e.g. `wifi_credentials.h`,
+  with a checked-in `.example` template) rather than literal `#define`s in
+  tracked source.
+- **Publish cadence**: every RS485 poll, on change, or rate-limited? Water
+  temp barely moves; publishing a full blob at poll rate is mostly redundant
+  traffic, but on-change needs a deadband so noise on the pH ADC doesn't
+  publish continuously.
+- **Broker unreachable**: `esp-mqtt` reconnects on its own, but decide what
+  the RS485 task does meanwhile — almost certainly keep polling and drop
+  updates rather than buffering, since stale readings have no value.
 
-## v2 — remote, anyone from anywhere
+## v2 — remote access and control
 
-Scope: any client, not just one on the same local network, can check status
-from anywhere on the internet.
+Scope: reach the same dashboard from outside the LAN, and send commands
+(starting with temperature setpoint) back to the board. This is where the
+feature stops being read-only.
 
-This is a substantially bigger jump than v1, not just "open a port":
-- The board can't safely be directly internet-exposed (no port-forwarding a
-  bare embedded HTTP server onto the open internet) — likely needs the board
-  to phone out to a relay/broker/backend service instead of accepting
-  inbound connections directly.
-- Needs some form of auth (this is no longer "if you're on my WiFi you're
-  trusted").
-- Needs a backend/service component this repo doesn't currently have any of
-  (hosting, protocol choice — MQTT to a broker is a common fit for this kind
-  of telemetry, but undecided).
+Because v1 already put the broker in the middle, the delta here is access
+and command handling — not a transport change.
 
-Not started — v1's on-device data format/API should inform some of these
-decisions once it exists.
+Decisions:
+- **Remote access**: reach the Pi over a VPN (Tailscale/WireGuard) rather
+  than forwarding any port. Nothing — not 1883, not the Node-RED dashboard —
+  is published to the open internet. The ESP32's exposure does not change at
+  all: it still only makes an outbound connection to a LAN broker.
+- **Commands are absolute, not relative.** `setpoint = 102`, never
+  `temp_up`. QoS 1 is at-least-once, so a redelivered relative command would
+  silently apply twice.
+- **Never retain command topics.** A retained command is redelivered to the
+  ESP32 on every reconnect, replaying the last setpoint change after every
+  power blip. Publish commands with `retain=false`. (State stays retained —
+  the asymmetry is deliberate.)
+- **Command → apply → echo.** The command topic is not state. The ESP32
+  validates the command, writes to the spa pack over RS485, and then
+  publishes what actually took effect to `hottub/state`. The dashboard binds
+  to the state topic, so a rejected or failed command visibly doesn't take
+  rather than showing optimistic UI.
+- **The ESP32 remains the authority.** Every inbound command is range- and
+  sanity-checked in firmware before it reaches the bus — the broker will
+  happily deliver a typo'd `mosquitto_pub` of `999`. Note also that the
+  Mach-7 pack keeps its own thermostat and high-limit logic, and the tub's
+  own panel keeps working regardless, so neither the Pi nor this board sits
+  in a safety-critical path. That's not a reason to skip the checks.
+- **Auth**: per-device username/password in Mosquitto. On-LAN TLS is
+  optional given the VPN boundary; if added, the ESP32 bundles the CA cert.
+  Node-RED's editor and dashboard need their own auth (`adminAuth`,
+  `httpNodeAuth`) — they are not covered by the broker's.
+- **Resubscribe on every `MQTT_EVENT_CONNECTED`**, unless clean-session is
+  disabled — subscriptions don't survive a clean-session reconnect.
+
+Open questions:
+- **Which commands beyond setpoint** (pump/jets/lights/filter cycle) depends
+  on what the Mach-7 RS485 protocol actually exposes — to be filled in once
+  the bus is decoded.
+- **History/logging**: not scoped. Node-RED can fan `hottub/state` out to
+  InfluxDB/SQLite for graphs and alerting ("pH drifted", "heater on 6h")
+  with no firmware change, whenever it's wanted.
+
+## Rejected: on-device HTTP server
+
+An earlier version of this plan had v1 serving JSON from an on-device
+`esp_http_server` endpoint (`GET /status`), polled by the phone, with MQTT
+arriving only in v2. Dropped, because it made the v1→v2 step a transport
+rewrite rather than a scope increase, and because it was the more complex of
+the two for v1's own goal: an HTTP server needs request handlers and shared
+state between the server and RS485 tasks, where publishing needs neither. It
+also can't do the command path at all without inbound connections to the
+board.
+
+A small `/status` endpoint could still be added later as a Pi-independent
+debug view. It isn't needed for bring-up — UART logging covers that — so
+it's not scoped here.
+
+## Consequences
+
+- **A second box is in the chain.** Monitoring depends on the Pi staying up,
+  from v1 onward rather than only in v2 — boot it from an SSD rather than an
+  SD card. Local control via the tub's own panel is unaffected by design.
