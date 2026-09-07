@@ -36,6 +36,9 @@ fp-info-cache
 # skip this if you're intentionally sharing it)
 *.kicad_prl
 
-# draw.io backup files
+# draw.io backup files (the desktop app writes these next to the file it's
+# editing; the .png patterns cover the editable-PNG diagram in docs/)
 *.drawio.bkp
 *.drawio.dtmp
+*.drawio.png.bkp
+*.drawio.png.dtmp

@@ -22,7 +22,14 @@ been written yet.
   ESP-IDF's `UART_MODE_RS485_HALF_DUPLEX`, rather than bit-banged in
   software.
 
-See `docs/Architecture.drawio` for the system architecture diagram.
+### Architecture diagram
+
+![System architecture](docs/Architecture.drawio.png)
+
+`docs/Architecture.drawio.png` is an *editable* PNG — the draw.io XML is
+embedded in the file itself, so open the `.png` directly in draw.io to edit
+it, then save over it. There's no separate `.drawio` source to keep in sync,
+and no export step: the image in this README is the diagram.
 
 ### Hardware roadmap
 
@@ -58,7 +65,7 @@ The architecture diagram lays out three planned revisions:
 ```
 hardware/v1/       KiCad schematic and project for the v1 board
 Drivers/libdrivers  Submodule of shared, vendor-agnostic sensor drivers
-docs/               Architecture diagram and design notes
+docs/               Architecture diagram (editable PNG) and design notes
 ```
 
 ## Submodules
