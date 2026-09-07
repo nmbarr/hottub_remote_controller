@@ -24,6 +24,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Seed KiCad's default global library tables
+        # A headless kicad-cli run creates its settings dir (kicad.json etc)
+        # but never seeds sym-lib-table/fp-lib-table the way the GUI's
+        # first-run wizard does, so every referenced library (even stock
+        # ones like power/Interface_UART) shows up as "not included" in
+        # ERC/DRC. Copy KiCad's own bundled defaults into place instead.
+        run: |
+          profile=$(kicad-cli version | cut -d. -f1,2)
+          config_dir="$HOME/.config/kicad/$profile"
+          mkdir -p "$config_dir"
+          cp -n /usr/share/kicad/template/sym-lib-table "$config_dir/sym-lib-table"
+          cp -n /usr/share/kicad/template/fp-lib-table "$config_dir/fp-lib-table"
+
       - name: Run ERC on each hardware project's schematic
         run: |
           status=0
