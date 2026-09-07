@@ -1,6 +1,6 @@
 # Hot Tub Remote Controller
 
-[![KiCad checks](https://github.com/nmbarr/hottub_remote_controller/actions/workflows/kicad-checks.yml/badge.svg)](https://github.com/nmbarr/hottub_remote_controller/actions/workflows/kicad-checks.yml)
+[![CI](https://github.com/nmbarr/hottub_remote_controller/actions/workflows/kicad-checks.yml/badge.svg)](https://github.com/nmbarr/hottub_remote_controller/actions/workflows/kicad-checks.yml)
 
 Hardware and firmware for a remote monitor/controller that taps into a hot
 tub's control system, aiming to expose status and control over WiFi instead
