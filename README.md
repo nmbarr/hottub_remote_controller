@@ -49,9 +49,9 @@ The architecture diagram lays out three planned revisions:
 ## Docs
 
 - [`docs/wifi.md`](docs/wifi.md) — plan for exposing the tub over WiFi via
-  MQTT to a Raspberry Pi running Mosquitto and Node-RED, from a v1
-  (local network, read-only telemetry) through a v2 that adds remote access
-  over a VPN and a command path for setpoints.
+  MQTT to a Raspberry Pi running Mosquitto and Node-RED: a v1 that monitors
+  and controls the tub from the local network, and a v2 that adds remote
+  access over a VPN (no firmware change).
 
 ## Repository layout
 
