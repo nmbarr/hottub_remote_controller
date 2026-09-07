@@ -36,6 +36,37 @@ standing*. A Raspberry Pi on the LAN acts as the IoT server:
 - **Firmware side**: `esp-mqtt` (`mqtt_client`), which ships with ESP-IDF —
   no vendored dependency added.
 
+## RS485 protocol
+
+The spa side is a Balboa protocol bus. The Mach 7 (RS-81) pack is a Balboa
+OEM design badged for DreamMaker/AquaRest — parts listings sell it as a
+"Mach 7 Balboa 56795 Pack" — so the reverse-engineered Balboa protocol is
+expected to apply. That's an inference from parts listings until it's
+confirmed against the actual bus.
+
+Reference: [ccutrer/balboa_worldwide_app][bwa] (Ruby, MIT per its gemspec —
+there's no LICENSE file at the root, so credit it in any ported source).
+`doc/protocol.md` there is the spec; `lib/bwa/crc.rb` and `lib/bwa/messages/`
+are the reference implementation.
+
+[bwa]: https://github.com/ccutrer/balboa_worldwide_app
+
+What matters for this firmware:
+
+| | |
+| --- | --- |
+| Framing | `0x7e [len] [type] [payload] [crc8] 0x7e` |
+| CRC | CRC-8, **init `0x02`, final XOR `0x02`** — not a stock CRC-8 |
+| Status | `ff af 13`, broadcast every second |
+| Set temperature | `0a bf 20`, one byte, doubled if Celsius |
+| Setpoint range | 80–104°F high range, 50–80°F low |
+| Bus access | transmit **only** immediately after a Ready message, `10 bf 06` |
+
+Serial settings: `doc/protocol.md` says 115200 8N1. The BWA README's ESPHome
+snippet says 4800 / parity ODD, but that snippet is labelled `name: SDN` and
+appears copy-pasted from a Somfy SDN config (4800/odd are Somfy's settings).
+Go with 115200 8N1 and confirm on a scope before trusting either.
+
 ## Topic map
 
 | Topic | Dir | Retain | QoS | Payload | Version |
@@ -60,10 +91,11 @@ drives the controls for a phone on the same network. No internet routing.
   poll cycle. Because the topic is retained, a phone or a restarted Node-RED
   gets current values immediately on connect rather than waiting for the
   next update.
-- **No shared "latest reading" state needed.** The task that produces the
-  reading is the task that publishes it, so there's no struct-behind-a-mutex
-  handoff between a polling loop and a server task. (This was an open
-  question under the earlier HTTP design; the MQTT shape removes it.)
+- **No shared "latest reading" state needed** *in this direction*. The task
+  that produces the reading is the task that publishes it, so there's no
+  struct-behind-a-mutex handoff between a polling loop and a server task.
+  (This was an open question under the earlier HTTP design; the MQTT shape
+  removes it for telemetry. Commands do need a handoff — see below.)
 - **Payload**: one JSON blob on `hottub/state`, not a topic per field. Keeps
   the firmware to a single serializer; Node-RED splits fields out for the
   dashboard with a `json` node.
@@ -82,14 +114,24 @@ drives the controls for a phone on the same network. No internet routing.
   ESP32 on every reconnect, replaying the last setpoint change after every
   power blip. Publish commands with `retain=false`. (State stays retained —
   the asymmetry is deliberate.)
-- **Command → apply → echo.** The command topic is not state. The ESP32
-  validates the command, writes to the spa pack over RS485, and then
-  publishes what actually took effect to `hottub/state`. The dashboard binds
-  to the state topic, so a rejected or failed command visibly doesn't take
-  rather than showing optimistic UI.
+- **The MQTT callback does not touch the bus.** Balboa's bus is poll-driven:
+  a device may transmit only in the window immediately after a Ready message
+  (`10 bf 06`). So the `esp-mqtt` event handler validates the command, hands
+  the setpoint to the RS485 task, and returns; that task transmits in its
+  next Ready window. This is the one place the two tasks share state — a
+  pending-command slot in the command direction, guarded by a mutex or
+  written as a queue — which is why the telemetry-direction claim above is
+  scoped the way it is.
+- **Command → apply → echo.** The command topic is not state. Once the RS485
+  task has actually sent the frame, the resulting `ff af 13` status broadcast
+  is what feeds `hottub/state`. The dashboard binds to the state topic, so a
+  rejected or failed command visibly doesn't take rather than showing
+  optimistic UI — and the echo reflects the pack's own report, not what the
+  firmware believes it sent.
 - **The ESP32 is the authority.** Every inbound command is range- and
   sanity-checked in firmware before it reaches the bus — the broker will
-  happily deliver a typo'd `mosquitto_pub` of `999`. Note also that the
+  happily deliver a typo'd `mosquitto_pub` of `999`; the protocol's own
+  bounds are 80–104°F in high range. Note also that the
   Mach-7 pack keeps its own thermostat and high-limit logic, and the tub's
   own panel keeps working regardless, so neither the Pi nor this board sits
   in a safety-critical path. That's not a reason to skip the checks.
@@ -127,17 +169,20 @@ history/logging.
 - **Broker unreachable**: `esp-mqtt` reconnects on its own, but decide what
   the RS485 task does meanwhile — almost certainly keep polling and drop
   updates rather than buffering, since stale readings have no value.
-- **Which commands beyond setpoint** (pump/jets/lights/filter cycle) depends
-  on what the Mach-7 RS485 protocol actually exposes — to be filled in once
-  the bus is decoded.
+- **Which commands beyond setpoint** (pump/jets/lights/filter cycle): start
+  from `lib/bwa/messages/` in [the BWA repo][bwa], which has message classes
+  for the ones that have been deciphered. Not all of them have been — confirm
+  against the actual bus rather than assuming coverage.
 
 ### Implementation order within v1
 
 Telemetry first, commands second — not because they're separate versions,
-but because decoding the bus has to happen before writing to it is even
-possible, and a read-only firmware is the tool that does the decoding. Get
-`hottub/state` publishing real values, confirm the frame format is
-understood, then add the command path.
+but because reading the bus correctly has to come before writing to it, and
+a read-only firmware is the tool that proves the framing and CRC are right.
+With the BWA protocol doc in hand this is mostly porting rather than
+reverse-engineering, but the pack being Balboa-compatible is still an
+assumption until frames actually decode. Get `hottub/state` publishing real
+values off `ff af 13`, then add the command path.
 
 ## v2 — remote access
 
