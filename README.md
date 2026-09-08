@@ -22,18 +22,15 @@ been written yet.
   ESP-IDF's `UART_MODE_RS485_HALF_DUPLEX`, rather than bit-banged in
   software.
 
-### Architecture diagram
+### Hardware diagram
 
-![System architecture](docs/Architecture.drawio.png)
+![Hardware architecture](docs/Hardware_Architecture.drawio.png)
 
-`docs/Architecture.drawio.png` is an *editable* PNG — the draw.io XML is
-embedded in the file itself, so open the `.png` directly in draw.io to edit
-it, then save over it. There's no separate `.drawio` source to keep in sync,
-and no export step: the image in this README is the diagram.
+The three planned board revisions (v1, v1.5, v2 — see the roadmap below).
 
 ### Hardware roadmap
 
-The architecture diagram lays out three planned revisions:
+The hardware diagram lays out three planned revisions:
 
 - **V1 — ESP32 DevKitC (initial build).** An ESP32 DevKitC (using its
   onboard USB-UART and 3.3V regulator) driving a MAX3485 RS485 transceiver.
@@ -53,6 +50,14 @@ The architecture diagram lays out three planned revisions:
   are also replaced by a custom analog front-end that conditions the raw pH
   and ORP electrodes directly for the ESP32's ADC.
 
+## IoT architecture diagram
+
+![IoT architecture](docs/IOT_Architecture.drawio.png)
+
+The runtime topology described in [`docs/wifi.md`](docs/wifi.md): the RS485
+tap between the topside panel and the Mach-7 pack, the ESP32's MQTT link to
+Mosquitto, and the Node-RED/InfluxDB/Grafana stack on the Pi.
+
 ## Docs
 
 - [`docs/wifi.md`](docs/wifi.md) — plan for exposing the tub over WiFi via
@@ -65,7 +70,7 @@ The architecture diagram lays out three planned revisions:
 ```
 hardware/v1/       KiCad schematic and project for the v1 board
 Drivers/libdrivers  Submodule of shared, vendor-agnostic sensor drivers
-docs/               Architecture diagram (editable PNG) and design notes
+docs/               Hardware and IoT architecture diagrams and design notes
 ```
 
 ## Submodules
