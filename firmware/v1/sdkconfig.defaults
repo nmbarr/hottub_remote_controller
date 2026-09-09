@@ -1,0 +1,5 @@
+# Non-default project configuration. `idf.py` regenerates the full `sdkconfig`
+# from this plus the IDF defaults, so `sdkconfig` itself is not committed:
+# delete it and rebuild to pick up changes made here.
+
+CONFIG_IDF_TARGET="esp32"

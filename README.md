@@ -9,8 +9,9 @@ of only via the tub's built-in panel.
 ## Status
 
 Early hardware design phase, centered on an ESP32-based board that taps the
-spa pack's control bus over RS485. Firmware for the new hardware has not
-been written yet.
+spa pack's control bus over RS485. `firmware/v1` is an ESP-IDF project
+skeleton that builds for the ESP32, but `app_main()` is still empty — no
+RS485 or MQTT code has been written yet.
 
 ## Hardware
 
@@ -68,10 +69,25 @@ Mosquitto, and the Node-RED/InfluxDB/Grafana stack on the Pi.
 ## Repository layout
 
 ```
-hardware/v1/       KiCad schematic and project for the v1 board
+hardware/v1/        KiCad schematic and project for the v1 board
+firmware/v1/        ESP-IDF application for the v1 board
 Drivers/libdrivers  Submodule of shared, vendor-agnostic sensor drivers
 docs/               Hardware and IoT architecture diagrams and design notes
 ```
+
+## Firmware
+
+`firmware/v1` is a standard ESP-IDF project, built against ESP-IDF 6.1:
+
+```
+idf.py build
+idf.py -p /dev/ttyUSB0 flash monitor
+```
+
+Project configuration lives in `sdkconfig.defaults`; the generated
+`sdkconfig` is not committed, so delete it and rebuild after changing the
+defaults. `idf.py build` also writes `build/compile_commands.json`, which
+the repo's `.clangd` points at for editor completion.
 
 ## Submodules
 

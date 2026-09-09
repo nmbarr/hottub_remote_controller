@@ -2,6 +2,10 @@ build
 mx.scratch
 !.settings
 
+# ESP-IDF generated project config (regenerated from sdkconfig.defaults)
+firmware/*/sdkconfig
+firmware/*/sdkconfig.old
+
 # Compiled artifacts (in case anything builds outside build/)
 *.o
 *.d
