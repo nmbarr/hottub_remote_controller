@@ -2,6 +2,7 @@
 #include "driver/uart.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "esp_log_buffer.h"
 #include "freertos/idf_additions.h"
 #include "freertos/projdefs.h"
 
@@ -28,48 +29,65 @@ void app_main(void)
   ESP_ERROR_CHECK(uart_set_pin(uart_num, 17, 16, 4, UART_PIN_NO_CHANGE));
 
   // Install the driver
-  int uart_rx_buffer_size = 256;
+  int uart_rx_buffer_size = 1024;
   int uart_tx_buffer_size = 0;
   int uart_queue_size = 0;
   int uart_intr_alloc_flags = 0;
   ESP_ERROR_CHECK(uart_driver_install(uart_num, uart_rx_buffer_size, uart_tx_buffer_size, uart_queue_size, NULL, uart_intr_alloc_flags));
 
-  // Set the RS485 Half Duplex
+  // Set the mode to RS485 Half Duplex
   ESP_ERROR_CHECK(uart_set_mode(uart_num, UART_MODE_RS485_HALF_DUPLEX));
 
-  static uint8_t burst[512];
-  memset(burst, 0x55, sizeof(burst));
+  // Capture raw bytes off the bus without interpreting them: enough to answer
+  // whether the wiring works, whether 115200 8N1 is right, and whether the
+  // pack really speaks Balboa. Collect first and dump once at the end --
+  // hexdumping as we go would cost ~5x the bandwidth we are receiving at,
+  // since the console is also 115200, and the RX ring would overflow.
+  static uint8_t capture[2048];
+  int offset = 0;
+  int idle = 0;
 
-  int bytes_per_second = uart_config.baud_rate / 10;
-  int bursts_per_second = bytes_per_second / sizeof(burst);
+  // Why the loop stopped. The three exits mean very different things.
+  const char *why = "buffer full";
 
-  while (1)
+  ESP_LOGI(TAG, "listening on UART2 @ %d 8N1, capturing %d bytes",
+           uart_config.baud_rate, (int)sizeof(capture));
+
+  while (offset < (int)sizeof(capture))
   {
-    // Roughly a second of continuous transmission, so EN stays asserted long
-    // enough to see on an LED. uart_write_bytes blocks until the bytes reach
-    // the FIFO, so the loop paces itself at line rate.
-    int total = 0;
-    for (int i = 0; i < bursts_per_second; i++)
+    int n = uart_read_bytes(uart_num, capture + offset, sizeof(capture) - offset, pdMS_TO_TICKS(100));
+    if (n < 0)
     {
-      int written = uart_write_bytes(uart_num, burst, sizeof(burst));
-      if (written < 0)
+      ESP_LOGE(TAG, "uart_read_bytes failed (%d)", n);
+      why = "read error";
+      break;
+    }
+    else if (n == 0)
+    {
+      // Idle. Give up after ~5s of silence rather than blocking forever.
+      if (++idle >= 50)
       {
-        ESP_LOGE(TAG, "write failed on burst %d", i);
+        why = "idle timeout";
         break;
       }
-      total += written;
-    }
-
-    int expected = bursts_per_second * (int)sizeof(burst);
-    if (total != expected)
-    {
-      ESP_LOGW(TAG, "burst: %d of %d bytes (short)", total, expected);
+      else
+      {
+        continue;
+      }
     }
     else
     {
-      ESP_LOGI(TAG, "burst: %d bytes, EN should have been high ~1s", total);
+      idle = 0;
+      offset += n;
+      // One short line per read: the timestamps give the arrival cadence,
+      // which the deferred hexdump cannot show.
+      ESP_LOGI(TAG, "+%d", n);
     }
+  }
 
-    vTaskDelay(pdMS_TO_TICKS(1000));
+  ESP_LOGI(TAG, "captured %d bytes (%s)", offset, why);
+  if (offset > 0)
+  {
+    ESP_LOG_BUFFER_HEXDUMP(TAG, capture, offset, ESP_LOG_INFO);
   }
 }
