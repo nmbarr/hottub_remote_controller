@@ -49,13 +49,59 @@ The hardware diagram lays out three planned revisions:
   with off-the-shelf DFRobot pH and ORP probes (each with its own analog
   conditioning board) added on, wired into the DevKitC's analog inputs via
   Gravity/JST connectors.
-- **V2 — custom PCB.** Replaces the DevKitC with a purpose-built board: a
-  bare ESP32 as the processor, a dedicated buck-converter power supply, and
-  the MAX3485 transceiver wired directly to two onboard RJ45 jacks (one to
-  the front panel, one to the Mach-7 control board), removing the external
-  breakout/screw-terminal board. The purchased DFRobot conditioning boards
-  are also replaced by a custom analog front-end that conditions the raw pH
-  and ORP electrodes directly for the ESP32's ADC.
+- **V2 — custom PCB.** Replaces the DevKitC with a purpose-built board: an
+  ESP32-WROOM-32UE as the processor, a dedicated buck-converter power
+  supply, and the MAX3485 transceiver wired directly to two onboard RJ45
+  jacks (one to the front panel, one to the Mach-7 control board), removing
+  the external breakout/screw-terminal board. The purchased DFRobot
+  conditioning boards are also replaced by a custom analog front-end that
+  conditions the raw pH and ORP electrodes directly for the ESP32's ADC.
+
+#### Antenna
+
+V2 uses the **WROOM-32UE**, the variant with a U.FL connector for an
+external antenna, rather than the **-32E** with its PCB trace antenna.
+Everything about the two is identical except the antenna, and the deciding
+factor is where the board lives: a spa equipment bay is water on all sides,
+several inches of foam insulation, a sealed enclosure the board cannot work
+without, and an AP that is inside the house through at least one exterior
+wall.
+
+Marginal WiFi is a worse outcome here than it looks. The whole design
+depends on the ESP32 holding an outbound MQTT connection, so a weak link
+does not degrade gracefully — it becomes a board that drops and reconnects,
+with `hottub/status` flapping through its LWT. Diagnosing that once the
+board is sealed into a box under the tub is miserable.
+
+The decision does not have to be made at layout time. Both modules share a
+pad layout — the -32UE is simply shorter, having no antenna section — so a
+footprint drawn for the -32E, with the module at the board edge and its
+antenna keepout honoured, accepts either. Note that the keepout is a hard
+constraint that shapes the board outline (no copper, no pour, no traces on
+any layer); getting it wrong detunes the antenna, which presents exactly
+like weak WiFi and cannot be fixed without a respin.
+
+For the antenna itself: 2.4GHz only, since that is all the ESP32 speaks,
+and a **2–3 dBi omni dipole** rather than something advertising high gain.
+Omni antennas buy gain by flattening their pattern into a disc, which
+trades away the vertical coverage that matters when the geometry is not
+known in advance.
+
+Keep the U.FL pigtail short, 100–150mm. Pigtail coax runs about 1.5 dB/m at
+2.4GHz, so a long one gives back more than the antenna gains; use RG316 if
+the antenna genuinely needs to be further away. Buy pigtail and antenna as
+a matched pair — RP-SMA and SMA are a reversed-gender convention, look
+nearly identical, and are easy to mix up.
+
+Placement matters more than any of this. Getting the antenna out of the
+foam and outside the enclosure is worth more than an antenna upgrade, and
+the bulkhead that gets it there is a hole in a sealed box in a splash zone:
+use an IP-rated one with an O-ring, on a face that does not collect drips.
+
+Worth measuring rather than guessing — `esp_wifi_sta_get_ap_info()` reports
+RSSI, so candidate placements can be compared directly before anything is
+sealed up. Better than −65 dBm is comfortable; worse than −80 is the
+reconnect-loop failure mode above.
 
 ## IoT architecture diagram
 
