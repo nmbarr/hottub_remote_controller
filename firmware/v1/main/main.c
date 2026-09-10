@@ -1,9 +1,11 @@
+#include <stdio.h>
 #include <string.h>
 #include "driver/uart.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "wifi.h"
+#include "mqtt.h"
 
 static const char *TAG = "uart_test";
 
@@ -65,6 +67,7 @@ void app_main(void)
   // WiFi keeps its calibration data in NVS, so this has to come first.
   nvs_init();
   wifi_init_sta();
+  mqtt_start();
 
   rs485_init();
 
@@ -111,6 +114,12 @@ void app_main(void)
   }
 
   ESP_LOGI(TAG, "captured %d bytes (%s)", offset, why);
+
+  // Stand-in for a decoded status blob, to prove the publish path end to end.
+  char json[64];
+  snprintf(json, sizeof(json), "{\"captured_bytes\":%d}", offset);
+  mqtt_publish_state(json);
+
   if (offset > 0)
   {
     ESP_LOG_BUFFER_HEXDUMP(TAG, capture, offset, ESP_LOG_INFO);
