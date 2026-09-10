@@ -33,8 +33,12 @@ standing*. A Raspberry Pi on the LAN acts as the IoT server:
   `mqtt in`/`mqtt out` nodes. `node-red-dashboard` provides the phone UI
   (gauges for temp/pH/ORP, a slider for the setpoint), so there's no custom
   frontend in this repo and UI changes never require reflashing the board.
-- **Firmware side**: `esp-mqtt` (`mqtt_client`), which ships with ESP-IDF —
-  no vendored dependency added.
+- **Firmware side**: `esp-mqtt` (`mqtt_client`). It shipped inside ESP-IDF
+  through 5.x; in 6.x it moved out of core and is now the managed component
+  `espressif/mqtt`, declared in `firmware/v1/main/idf_component.yml` and
+  fetched at build time. Still nothing vendored into this repo — but it is a
+  declared dependency now rather than something that is simply present, so
+  `dependencies.lock` is committed to pin the resolved version.
 
 ## RS485 protocol
 
@@ -103,7 +107,13 @@ drives the controls for a phone on the same network. No internet routing.
   hottub/state  {"water_temp_F":102.4,"ph":7.4,...}
   ```
 - **LWT** on `hottub/status` so the dashboard can distinguish live readings
-  from stale ones left behind by a board that dropped off.
+  from stale ones left behind by a board that dropped off. Keepalive is set
+  to 30s rather than the 120s default: a broker waits 1.5x keepalive before
+  declaring a client dead, so the default leaves the dashboard showing a
+  confident `online` for three minutes after the board stops existing. Low
+  enough to be useful, high enough that a brief WiFi glitch does not flap it.
+  Note the LWT only covers vanishing — the board publishes `online` itself on
+  every connect, retained, or the status stays `offline` after any reconnect.
 
 ### Commands
 

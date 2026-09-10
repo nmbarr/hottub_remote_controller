@@ -6,6 +6,14 @@ mx.scratch
 firmware/*/sdkconfig
 firmware/*/sdkconfig.old
 
+# Build-time secrets: WiFi and broker credentials. Committed as a
+# .example template; the real header is per-machine and never tracked.
+wifi_credentials.h
+
+# Dependencies pulled in by the IDF Component Manager. Fetched from
+# dependencies.lock at build time, so the tree is reproducible without them.
+managed_components/
+
 # Compiled artifacts (in case anything builds outside build/)
 *.o
 *.d

@@ -1,7 +1,11 @@
+#include <stdio.h>
 #include <string.h>
 #include "driver/uart.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "nvs_flash.h"
+#include "wifi.h"
+#include "mqtt.h"
 
 static const char *TAG = "uart_test";
 
@@ -47,8 +51,24 @@ static void rs485_init(void)
   ESP_ERROR_CHECK(uart_set_mode(RS485_UART, UART_MODE_RS485_HALF_DUPLEX));
 }
 
+static void nvs_init(void)
+{
+  esp_err_t err = nvs_flash_init();
+  if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
+  {
+    ESP_ERROR_CHECK(nvs_flash_erase());
+    err = nvs_flash_init();
+  }
+  ESP_ERROR_CHECK(err);
+}
+
 void app_main(void)
 {
+  // WiFi keeps its calibration data in NVS, so this has to come first.
+  nvs_init();
+  wifi_init_sta();
+  mqtt_start();
+
   rs485_init();
 
   // Collect first, dump once. Hexdumping as bytes arrive costs ~5x the
@@ -94,6 +114,12 @@ void app_main(void)
   }
 
   ESP_LOGI(TAG, "captured %d bytes (%s)", offset, why);
+
+  // Stand-in for a decoded status blob, to prove the publish path end to end.
+  char json[64];
+  snprintf(json, sizeof(json), "{\"captured_bytes\":%d}", offset);
+  mqtt_publish_state(json);
+
   if (offset > 0)
   {
     ESP_LOG_BUFFER_HEXDUMP(TAG, capture, offset, ESP_LOG_INFO);
