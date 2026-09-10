@@ -9,8 +9,15 @@ of only via the tub's built-in panel.
 ## Status
 
 Early hardware design phase, centered on an ESP32-based board that taps the
-spa pack's control bus over RS485. Firmware for the new hardware has not
-been written yet.
+spa pack's control bus over RS485. The board is still a DevKitC and a
+MAX3485 breakout on a breadboard; no PCB has been made.
+
+`firmware/v1` is bring-up code, not the product. It configures UART2 for
+RS485 half-duplex and captures raw bytes off the bus so they can be read by
+eye. A loopback test and a direction-control test both pass on the bench,
+but nothing has been connected to the tub yet — so whether the Mach-7 pack
+really speaks Balboa is still an inference from parts listings rather than
+something observed. No framing, no CRC, no MQTT.
 
 ## Hardware
 
@@ -64,14 +71,51 @@ Mosquitto, and the Node-RED/InfluxDB/Grafana stack on the Pi.
   MQTT to a Raspberry Pi running Mosquitto and Node-RED: a v1 that monitors
   and controls the tub from the local network, and a v2 that adds remote
   access over a VPN (no firmware change).
+- [`docs/wsl-setup.md`](docs/wsl-setup.md) — building and flashing from WSL2:
+  forwarding the DevKitC's USB serial port in with usbipd-win, `dialout`
+  permissions, and activating this machine's `eim`-installed ESP-IDF.
 
 ## Repository layout
 
 ```
-hardware/v1/       KiCad schematic and project for the v1 board
+hardware/v1/        KiCad schematic and project for the v1 board
+firmware/v1/        ESP-IDF application for the v1 board
 Drivers/libdrivers  Submodule of shared, vendor-agnostic sensor drivers
 docs/               Hardware and IoT architecture diagrams and design notes
 ```
+
+## Firmware
+
+`firmware/v1` is a standard ESP-IDF project, built against ESP-IDF 6.1:
+
+```
+idf.py build
+idf.py -p /dev/ttyUSB0 flash monitor
+```
+
+Bus wiring, matching `hardware/v1` and the `RS485_*` constants in
+`main/main.c`:
+
+| ESP32 | Transceiver | |
+| --- | --- | --- |
+| GPIO17 | `TXD` (DI) | ESP32 transmits |
+| GPIO16 | `RXD` (RO) | ESP32 receives |
+| GPIO4 | `EN` (DE + RE~) | direction, driven as the UART's RTS |
+
+UART2, because UART0 is the console and UART1's default pins are wired to
+the module's SPI flash. Note that GPIO1/GPIO3 are *not* usable here despite
+their TX/RX silkscreen: they reach the DevKitC's CP2102N, so a transceiver
+on them contends with the USB bridge and the ROM bootloader's banner would
+be driven onto the spa bus at every reset.
+
+If you're developing in WSL2, the board is attached to Windows and its
+serial port has to be forwarded in before `idf.py` can see it — see
+[`docs/wsl-setup.md`](docs/wsl-setup.md).
+
+Project configuration lives in `sdkconfig.defaults`; the generated
+`sdkconfig` is not committed, so delete it and rebuild after changing the
+defaults. `idf.py build` also writes `build/compile_commands.json`, which
+the repo's `.clangd` points at for editor completion.
 
 ## Submodules
 

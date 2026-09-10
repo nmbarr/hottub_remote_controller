@@ -170,6 +170,146 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Device:R"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "R"
+				(at 2.032 0 90)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "R"
+				(at 0 0 90)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at -1.778 0 90)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Resistor"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "R res resistor"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "R_*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "R_0_1"
+				(rectangle
+					(start -1.016 -2.54)
+					(end 1.016 2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "R_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 1.27)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 1.27)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Interface_UART:MAX3485"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -1772,7 +1912,7 @@
 	)
 	(text_box "DE + RE~ tied to GPIO4 (UART RTS).\nLOW = receive, HIGH = transmit.\nDirection driven automatically by\nESP-IDF UART_MODE_RS485_HALF_DUPLEX\n- not bit-banged in software."
 		(exclude_from_sim no)
-		(at 172.72 59.69 0)
+		(at 190.5 63.5 0)
 		(size 43.18 12.7)
 		(margins 0.9525 0.9525 0.9525 0.9525)
 		(stroke
@@ -1790,6 +1930,27 @@
 		)
 		(uuid "0cee85ad-ea61-4d58-bb98-41c526063ad1")
 	)
+	(text_box "10k resistor so the transceiver defaults to receive during the boot window before uart_set_pin runs"
+		(exclude_from_sim no)
+		(at 142.24 112.6124 0)
+		(size 13.97 9.2651)
+		(margins 0.9525 0.9525 0.9525 0.9525)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(fill
+			(type color)
+			(color 255 255 255 1)
+		)
+		(effects
+			(font
+				(size 0.762 0.762)
+			)
+			(justify left top)
+		)
+		(uuid "5a4e18be-db10-495c-b0e4-710cd8d5865c")
+	)
 	(junction
 		(at 113.03 49.53)
 		(diameter 0)
@@ -1797,10 +1958,16 @@
 		(uuid "05b1495f-96eb-448f-9512-f689a5e2cbe0")
 	)
 	(junction
+		(at 152.4 93.98)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b3e11f8f-4290-4476-a802-6372e76bc711")
+	)
+	(junction
 		(at 158.75 93.98)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "ca556afc-873b-42db-baa7-7a804c11c858")
+		(uuid "b9a0bf87-0a82-47f8-b4dd-cf6d2181f58c")
 	)
 	(junction
 		(at 100.33 138.43)
@@ -1889,6 +2056,10 @@
 		(uuid "4fd77415-42fe-4e8c-b070-209830258308")
 	)
 	(no_connect
+		(at 133.35 63.5)
+		(uuid "519501d7-df33-447c-93d9-59c83968f794")
+	)
+	(no_connect
 		(at 67.31 68.58)
 		(uuid "5733bdf0-3b4f-45df-a010-491b4986f26c")
 	)
@@ -1905,12 +2076,12 @@
 		(uuid "76d5a39b-b542-4404-9481-689e6842f79f")
 	)
 	(no_connect
-		(at 133.35 121.92)
-		(uuid "7d39dc10-e33c-4a7e-bc55-6c00dfae3f01")
-	)
-	(no_connect
 		(at 100.33 58.42)
 		(uuid "97002d09-ddc1-4023-8939-9d425cb7aada")
+	)
+	(no_connect
+		(at 133.35 66.04)
+		(uuid "97b3d817-fec5-4098-8ac1-f883d3bce10a")
 	)
 	(no_connect
 		(at 67.31 93.98)
@@ -1935,10 +2106,6 @@
 	(no_connect
 		(at 67.31 81.28)
 		(uuid "f615caf8-8d80-4daa-afd3-7fc946ae6168")
-	)
-	(no_connect
-		(at 133.35 124.46)
-		(uuid "f67b8443-7a49-4632-8ce0-96752f1323d5")
 	)
 	(no_connect
 		(at 133.35 88.9)
@@ -1966,7 +2133,7 @@
 	)
 	(wire
 		(pts
-			(xy 113.03 49.53) (xy 170.18 49.53)
+			(xy 113.03 49.53) (xy 179.07 49.53)
 		)
 		(stroke
 			(width 0)
@@ -1976,7 +2143,17 @@
 	)
 	(wire
 		(pts
-			(xy 170.18 138.43) (xy 170.18 111.76)
+			(xy 139.7 91.44) (xy 139.7 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0bfc3e9f-ecae-4045-a0e2-327722dddf19")
+	)
+	(wire
+		(pts
+			(xy 179.07 138.43) (xy 179.07 111.76)
 		)
 		(stroke
 			(width 0)
@@ -1986,7 +2163,7 @@
 	)
 	(wire
 		(pts
-			(xy 160.02 96.52) (xy 158.75 96.52)
+			(xy 168.91 96.52) (xy 158.75 96.52)
 		)
 		(stroke
 			(width 0)
@@ -1996,37 +2173,17 @@
 	)
 	(wire
 		(pts
-			(xy 147.32 101.6) (xy 160.02 101.6)
+			(xy 168.91 101.6) (xy 158.75 101.6)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "1ca714cf-6234-42a5-9418-1cdcb75d3451")
+		(uuid "1f646740-cb75-40f6-8330-bc7525ea0b2c")
 	)
 	(wire
 		(pts
-			(xy 133.35 66.04) (xy 156.21 66.04)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "341e6478-0d14-41f7-a54a-f4cdab6a774e")
-	)
-	(wire
-		(pts
-			(xy 133.35 63.5) (xy 147.32 63.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3c9137a5-7f56-41c7-b5db-48c939303d11")
-	)
-	(wire
-		(pts
-			(xy 170.18 49.53) (xy 170.18 81.28)
+			(xy 179.07 49.53) (xy 179.07 81.28)
 		)
 		(stroke
 			(width 0)
@@ -2036,7 +2193,7 @@
 	)
 	(wire
 		(pts
-			(xy 184.15 91.44) (xy 209.55 91.44)
+			(xy 203.2 91.44) (xy 209.55 91.44)
 		)
 		(stroke
 			(width 0)
@@ -2066,33 +2223,23 @@
 	)
 	(wire
 		(pts
-			(xy 156.21 91.44) (xy 160.02 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "62f20b21-8d37-4bbd-96dd-1f09e484fec8")
-	)
-	(wire
-		(pts
-			(xy 147.32 63.5) (xy 147.32 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "67ac140f-982b-4d2c-9912-be2288e5d7ec")
-	)
-	(wire
-		(pts
-			(xy 158.75 93.98) (xy 160.02 93.98)
+			(xy 158.75 93.98) (xy 168.91 93.98)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "6fe3beac-a0d7-421a-b6ab-83c9dfe920f8")
+	)
+	(wire
+		(pts
+			(xy 168.91 91.44) (xy 139.7 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "750f552c-5826-4f3a-bbb0-3577f9f52816")
 	)
 	(wire
 		(pts
@@ -2106,7 +2253,7 @@
 	)
 	(wire
 		(pts
-			(xy 184.15 93.98) (xy 184.15 91.44)
+			(xy 203.2 93.98) (xy 203.2 91.44)
 		)
 		(stroke
 			(width 0)
@@ -2123,6 +2270,16 @@
 			(type default)
 		)
 		(uuid "943163fa-c276-4c3b-8b04-64bb8228906d")
+	)
+	(wire
+		(pts
+			(xy 139.7 121.92) (xy 133.35 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9645c0da-9f1c-4ec3-84c8-4f760f4804df")
 	)
 	(wire
 		(pts
@@ -2146,7 +2303,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 93.98) (xy 184.15 93.98)
+			(xy 189.23 93.98) (xy 203.2 93.98)
 		)
 		(stroke
 			(width 0)
@@ -2166,7 +2323,7 @@
 	)
 	(wire
 		(pts
-			(xy 109.22 138.43) (xy 170.18 138.43)
+			(xy 109.22 138.43) (xy 179.07 138.43)
 		)
 		(stroke
 			(width 0)
@@ -2176,13 +2333,23 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 88.9) (xy 209.55 88.9)
+			(xy 189.23 88.9) (xy 209.55 88.9)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "b36d469a-e4de-407d-af6a-59bea69fa964")
+	)
+	(wire
+		(pts
+			(xy 158.75 124.46) (xy 133.35 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bef5103a-628d-4ec3-a975-43b5e03185c5")
 	)
 	(wire
 		(pts
@@ -2196,16 +2363,6 @@
 	)
 	(wire
 		(pts
-			(xy 156.21 66.04) (xy 156.21 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cdcb851a-77ee-4627-bd5f-746f3096a740")
-	)
-	(wire
-		(pts
 			(xy 102.87 48.26) (xy 102.87 49.53)
 		)
 		(stroke
@@ -2216,6 +2373,26 @@
 	)
 	(wire
 		(pts
+			(xy 152.4 93.98) (xy 152.4 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d485fbfe-1ea6-49b2-830b-75469b5b6168")
+	)
+	(wire
+		(pts
+			(xy 152.4 104.14) (xy 152.4 105.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "da17ac93-7c64-47c6-b408-d8c2511032df")
+	)
+	(wire
+		(pts
 			(xy 158.75 96.52) (xy 158.75 93.98)
 		)
 		(stroke
@@ -2223,6 +2400,66 @@
 			(type default)
 		)
 		(uuid "da4b2437-ba7b-4279-9c40-4bf359077a5f")
+	)
+	(wire
+		(pts
+			(xy 158.75 101.6) (xy 158.75 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "de5b55fc-714f-465b-9eaf-819a9024829b")
+	)
+	(label "RS485_DI"
+		(at 168.91 101.6 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "004e3260-17ac-40e6-b984-0299d380df5e")
+	)
+	(label "RS485_A"
+		(at 189.23 88.9 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "066d24b7-8986-499c-85e6-fa4fc62dfafa")
+	)
+	(label "RS485_DE"
+		(at 168.91 93.98 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "26fbf035-4fed-4b85-9a4a-43537b092427")
+	)
+	(label "RS485_B"
+		(at 189.23 93.98 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "5f22e206-b919-43d1-9aa1-0eb237500af8")
+	)
+	(label "RS485_RO"
+		(at 168.91 91.44 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "edb8d4d8-1a7c-434a-8883-d5839cd4f1e5")
 	)
 	(symbol
 		(lib_id "PCM_Espressif:ESP32-DevKitC")
@@ -2414,8 +2651,89 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 152.4 100.33 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "678af421-c585-4cfd-be9a-a7bb9f5c3491")
+		(property "Reference" "R1"
+			(at 149.86 99.0599 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "10k"
+			(at 149.86 101.5999 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 150.622 100.33 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 152.4 100.33 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 152.4 100.33 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "595daee7-1419-4671-be24-fe59eb41b691")
+		)
+		(pin "2"
+			(uuid "8f3625a5-beb8-4ec4-8a2e-cfa9cb5dbf82")
+		)
+		(instances
+			(project "v1"
+				(path "/ef020825-7448-4382-ac7c-ba8571f4d9dd"
+					(reference "R1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Interface_UART:MAX3485")
-		(at 170.18 96.52 0)
+		(at 179.07 96.52 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2425,7 +2743,7 @@
 		(dnp no)
 		(uuid "776d9943-0e54-42cf-85ca-ddf660bca61e")
 		(property "Reference" "U2"
-			(at 174.752 82.296 0)
+			(at 183.642 82.296 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2436,7 +2754,7 @@
 			)
 		)
 		(property "Value" "MAX3485"
-			(at 170.942 110.744 0)
+			(at 179.832 110.744 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2447,7 +2765,7 @@
 			)
 		)
 		(property "Footprint" "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
-			(at 170.18 119.38 0)
+			(at 179.07 119.38 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2458,7 +2776,7 @@
 			)
 		)
 		(property "Datasheet" "https://datasheets.maximintegrated.com/en/ds/MAX3483-MAX3491.pdf"
-			(at 170.18 95.25 0)
+			(at 179.07 95.25 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2469,7 +2787,7 @@
 			)
 		)
 		(property "Description" "True RS-485/RS-422, 10Mbps, Slew-Rate Limited, with low-power shutdown, with receiver/driver enable, 32 receiver drive capacitity, DIP-8 and SOIC-8"
-			(at 170.18 96.52 0)
+			(at 179.07 96.52 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2741,6 +3059,84 @@
 			(project "v1"
 				(path "/ef020825-7448-4382-ac7c-ba8571f4d9dd"
 					(reference "#FLG01")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 152.4 105.41 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b44e12b3-1621-45c9-99f3-8ea437bd87bc")
+		(property "Reference" "#PWR03"
+			(at 152.4 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 152.4 110.49 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 152.4 105.41 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 152.4 105.41 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 152.4 105.41 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "c1b8d056-e241-482f-94ba-179df6abf5c5")
+		)
+		(instances
+			(project "v1"
+				(path "/ef020825-7448-4382-ac7c-ba8571f4d9dd"
+					(reference "#PWR03")
 					(unit 1)
 				)
 			)

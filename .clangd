@@ -1,2 +1,27 @@
 CompileFlags:
-  CompilationDatabase: build/Debug
+  CompilationDatabase: firmware/v1/build
+  Add:
+    # ESP-IDF passes GCC warning flags clang doesn't have; don't error on them.
+    # NOTE: --query-driver is a clangd *command-line* flag, not a compile flag.
+    # It cannot go here -- it belongs in the editor's clangd invocation.
+    - -Wno-unknown-warning-option
+    # The esp-clangd package ships no builtin headers (no lib/clang/<v>), so
+    # stddef.h/stdarg.h resolve nowhere and every include cascades into errors.
+    # Borrow the resource dir from the matching esp-clang toolchain.
+    - -resource-dir=/home/brick/.espressif/tools/esp-clang/esp-21.1.3_20260408/esp-clang/lib/clang/21
+  Remove:
+    # GCC-only flags ESP-IDF passes that clang rejects. Combined with the
+    # -Werror on every entry, leaving these in turns completion off entirely.
+    - -fno-tree-switch-conversion
+    - -fstrict-volatile-bitfields
+    - -fno-shrink-wrap
+    - -fno-malloc-dce
+    - -fzero-init-padding-bits=*
+    - -fno-inline-small-functions
+    - -fno-inline-functions-called-once
+    - -Wlogical-op
+    - -Wformat-signedness
+    - -Wformat-overflow=*
+    - -Wformat-truncation
+    - -Wno-old-style-declaration
+    - -Wno-unterminated-string-initialization
