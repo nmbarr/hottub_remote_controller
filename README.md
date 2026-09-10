@@ -65,6 +65,9 @@ Mosquitto, and the Node-RED/InfluxDB/Grafana stack on the Pi.
   MQTT to a Raspberry Pi running Mosquitto and Node-RED: a v1 that monitors
   and controls the tub from the local network, and a v2 that adds remote
   access over a VPN (no firmware change).
+- [`docs/wsl-setup.md`](docs/wsl-setup.md) — building and flashing from WSL2:
+  forwarding the DevKitC's USB serial port in with usbipd-win, `dialout`
+  permissions, and activating this machine's `eim`-installed ESP-IDF.
 
 ## Repository layout
 
@@ -83,6 +86,10 @@ docs/               Hardware and IoT architecture diagrams and design notes
 idf.py build
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
+
+If you're developing in WSL2, the board is attached to Windows and its
+serial port has to be forwarded in before `idf.py` can see it — see
+[`docs/wsl-setup.md`](docs/wsl-setup.md).
 
 Project configuration lives in `sdkconfig.defaults`; the generated
 `sdkconfig` is not committed, so delete it and rebuild after changing the
