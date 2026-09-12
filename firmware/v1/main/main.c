@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include "driver/uart.h"
+#include "driver/gpio.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
@@ -12,19 +14,85 @@ static const char *TAG = "uart_test";
 // UART2: UART0 is the console, UART1's default pins are the SPI flash.
 // Not GPIO1/3 despite the TX/RX silkscreen -- those reach the CP2102N, so
 // the ROM bootloader's banner would land on the spa bus at every reset.
-#define RS485_UART        UART_NUM_2
-#define RS485_TX_GPIO     17   // -> transceiver TXD (DI)
-#define RS485_RX_GPIO     16   // <- transceiver RXD (RO)
-#define RS485_DE_GPIO     4    // -> transceiver EN  (DE + RE)
+#define RS485_UART UART_NUM_2
+#define RS485_TX_GPIO 17  // -> transceiver TXD (DI)
+#define RS485_RX_GPIO 16  // <- transceiver RXD (RO)
+#define RS485_DE_GPIO 4   // -> transceiver EN  (DE + RE)
 
-#define RS485_BAUD        115200
-#define RS485_RX_BUF      1024  // must exceed the 128-byte hardware FIFO
+#define RS485_BAUD 115200
+#define RS485_RX_BUF 1024  // must exceed the 128-byte hardware FIFO
 
-#define READ_TIMEOUT_MS   100
-#define IDLE_GIVEUP_MS    5000
+#define LED_GPIO 19  // Green LED
+
+#define READ_TIMEOUT_MS 100
+#define IDLE_GIVEUP_MS 5000
 #define IDLE_GIVEUP_READS (IDLE_GIVEUP_MS / READ_TIMEOUT_MS)
 
-#define CAPTURE_BYTES     2048
+#define CAPTURE_BYTES 2048
+
+// The pin is an output, so gpio_get_level cannot read back what we drove.
+// This is the only record of what the LED is doing.
+static bool s_led_state;
+
+static void led_set(bool on)
+{
+  s_led_state = on;
+  gpio_set_level(LED_GPIO, on);
+
+  // Report what the pin is actually doing rather than letting the dashboard
+  // assume its own click worked. No-ops before the client exists, which is
+  // why on_mqtt_connected republishes.
+  mqtt_publish_item_state("led", on ? "on" : "off");
+}
+
+static void configure_led(void)
+{
+  gpio_reset_pin(LED_GPIO);
+  // Set the GPIO as a push/pull output
+  gpio_set_direction(LED_GPIO, GPIO_MODE_OUTPUT);
+  // Drive a known level: gpio_reset_pin leaves the pin as an input, so until
+  // something writes it the LED is whatever the pull-up left it at.
+  led_set(false);
+  ESP_LOGI(TAG, "GPIO%d configured as output for the green LED", LED_GPIO);
+}
+
+// Runs on the esp-mqtt task, so it dispatches rather than does: anything
+// slower than a register write belongs on a queue to the task that owns the
+// hardware. The LED is the exception that is genuinely free to do inline.
+static void on_command(const char *topic, const char *payload)
+{
+  // Subscribed with a wildcard, so the last topic segment names the target.
+  const char *target = strrchr(topic, '/');
+  target = (target != NULL) ? target + 1 : topic;
+
+  if (strcmp(target, "led") != 0)
+  {
+    ESP_LOGW(TAG, "no such command target: %s", target);
+    return;
+  }
+
+  // Explicit on/off rather than a toggle: a redelivered or duplicated command
+  // then lands on the same state instead of inverting it.
+  if (strcmp(payload, "on") == 0)
+  {
+    led_set(true);
+  }
+  else if (strcmp(payload, "off") == 0)
+  {
+    led_set(false);
+  }
+  else
+  {
+    ESP_LOGW(TAG, "bad payload for %s: '%s'", target, payload);
+  }
+}
+
+// The retained state topic is the board's claim about itself, so every
+// reconnect is a chance to correct a stale one the broker is still serving.
+static void on_mqtt_connected(void)
+{
+  mqtt_publish_item_state("led", s_led_state ? "on" : "off");
+}
 
 static void rs485_init(void)
 {
@@ -66,6 +134,13 @@ void app_main(void)
 {
   // WiFi keeps its calibration data in NVS, so this has to come first.
   nvs_init();
+
+  // Both before mqtt_start: the pin has to be an output and the handler has
+  // to be registered before the first command can possibly arrive.
+  configure_led();
+  mqtt_set_command_handler(on_command);
+  mqtt_set_connected_handler(on_mqtt_connected);
+
   wifi_init_sta();
   mqtt_start();
 
