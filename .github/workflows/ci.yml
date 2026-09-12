@@ -6,6 +6,7 @@ on:
   # fork PRs, which push does not see); push covers what actually lands.
   push:
     branches: [main]
+    tags: ["v*"]
   pull_request:
   # No paths filter, on any job: a required status check that a path filter
   # skips never reports at all — GitHub shows it as permanently "pending" and
@@ -160,3 +161,54 @@ jobs:
 
       - name: Compile
         run: esphome compile firmware/esphome-spa/esp32-spa.yaml
+
+  # Runs only on version tags, independent of the `changes` gate above: a tag
+  # push means "release this," full stop, regardless of what the diff since
+  # the last commit touched.
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache ESPHome's ESP-IDF download
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/esphome
+          key: esphome-idf-${{ runner.os }}
+
+      - name: Install ESPHome
+        run: pip install esphome
+
+      - name: Supply placeholder secrets
+        # secrets.yaml is gitignored; the example has no real credentials and
+        # never reaches a board from here, so it's exactly what a release
+        # build wants.
+        run: |
+          cp firmware/esphome-spa/secrets.yaml.example \
+             firmware/esphome-spa/secrets.yaml
+
+      - name: Compile
+        run: esphome compile firmware/esphome-spa/esp32-spa.yaml
+
+      - name: Collect firmware binaries
+        # factory.bin is a full-flash image (bootloader + partition table +
+        # app) for flashing a blank board; ota.bin is the app image alone,
+        # for ESPHome's OTA updater or a board already running this firmware.
+        run: |
+          build_dir=firmware/esphome-spa/.esphome/build/esp32-spa/build
+          mkdir -p release
+          cp "$build_dir/firmware.factory.bin" "release/esp32-spa-${GITHUB_REF_NAME}.factory.bin"
+          cp "$build_dir/firmware.ota.bin" "release/esp32-spa-${GITHUB_REF_NAME}.ota.bin"
+
+      - name: Publish release
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+        with:
+          files: release/*
+          generate_release_notes: true
