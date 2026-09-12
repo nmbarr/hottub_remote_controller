@@ -134,11 +134,16 @@ void app_main(void)
   mqtt_set_command_handler(on_command);
   mqtt_set_connected_handler(on_mqtt_connected);
 
-  wifi_init_sta();
-  mqtt_start();
-
+  // Ahead of the network: wifi_init_sta blocks until it connects or exhausts
+  // its first-connect attempts, which with the backoff is around half a minute
+  // against a dead AP. The spa bus is the primary job and does not care
+  // whether WiFi ever comes up, so it must not queue behind it. Publishing
+  // before the client exists is a no-op, not an error.
   rs485_set_message_handler(on_rs485_message);
   rs485_start();
 
-  // Returning is fine: the WiFi, MQTT and RS485 tasks carry on without us.
+  wifi_init_sta();
+  mqtt_start();
+
+  // Returning is fine: the RS485, WiFi and MQTT tasks carry on without us.
 }
