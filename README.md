@@ -8,54 +8,78 @@ of only via the tub's built-in panel.
 
 ## Status
 
-Early hardware design phase, centered on an ESP32-based board that taps the
-spa pack's control bus over RS485. The board is still a DevKitC and a
-MAX3485 breakout on a breadboard; no PCB has been made.
+Early hardware design phase, **currently mid-pivot**. The tub's topside is a
+Balboa VL240, and on GS-series packs that panel is not on an RS485 bus at
+all: it is a dumb terminal on a 6-signal harness — four raw button contacts
+plus a clock/data pair carrying the 7-segment display bitmap. See
+[`docs/wifi.md`](docs/wifi.md#topside-panel-interface).
 
-`firmware/v1` is bring-up code, not the product. It configures UART2 for
-RS485 half-duplex and captures raw bytes off the bus so they can be read by
-eye. A loopback test and a direction-control test both pass on the bench,
-but nothing has been connected to the tub yet — so whether the Mach-7 pack
-really speaks Balboa is still an inference from parts listings rather than
-something observed. No framing, no CRC, no MQTT.
+That invalidates the RS485 design this repo was built around. Superseded:
+
+- `firmware/v1/main/rs485.c` and `firmware/v1/test/` — the UART2 half-duplex
+  driver, the `0x7e` framer and the Balboa CRC-8. Kept in tree for now so the
+  build and CI stay green while the replacement is written, but none of it
+  describes this tub.
+- The MAX3485 in `hardware/v1`, and V2's plan to interpose between panel and
+  pack. The board no longer sits *in* the harness; it hangs off it in
+  parallel.
+- `docs/Hardware_Architecture.drawio.png` and `docs/IOT_Architecture.drawio.png`,
+  both of which still draw the RS485 tap.
+
+Still true: the ESP32 DevKitC, the MQTT topology to Mosquitto/Node-RED, the
+RJ45 breakout so nothing gets spliced, and the V2 antenna work.
+
+Nothing has been connected to the tub yet. The interface above is confirmed
+for kgstorm's GS100; this pack is a Mach 7 (RS-81), and matching it is still
+an inference from parts listings — see the read-only check in
+[`docs/wifi.md`](docs/wifi.md#still-unconfirmed) before building.
 
 ## Hardware
 
 `hardware/v1` contains the KiCad project for the v1 board:
 
 - **ESP32-DevKitC** as the main controller.
-- **MAX3485** RS485 transceiver, tapped onto the hot tub's control bus.
-- Direction control (DE/RE~) tied to a GPIO driven automatically by
-  ESP-IDF's `UART_MODE_RS485_HALF_DUPLEX`, rather than bit-banged in
-  software.
+- **MAX3485** RS485 transceiver — **superseded**, see Status. The schematic
+  has not been redrawn yet.
+
+What replaces it: a passive tap on the topside harness. Two divided inputs
+for the display clock and data, and four optocouplers to bridge the button
+contacts without loading or backfeeding the panel, which stays wired in
+parallel and has to keep working.
 
 ### Hardware diagram
 
 ![Hardware architecture](docs/Hardware_Architecture.drawio.png)
 
 The three planned board revisions (v1, v1.5, v2 — see the roadmap below).
+**Stale:** still drawn around the RS485 tap. Needs redrawing alongside the
+schematic.
 
 ### Hardware roadmap
 
 The hardware diagram lays out three planned revisions:
 
 - **V1 — ESP32 DevKitC (initial build).** An ESP32 DevKitC (using its
-  onboard USB-UART and 3.3V regulator) driving a MAX3485 RS485 transceiver.
-  The transceiver taps into the hot tub's existing RS485 wiring between the
-  front panel and the Mach-7 control board through an off-the-shelf RJ45
-  breakout board and screw terminals — no cutting or splicing of the
-  existing harness.
-- **V1.5 — + water chemistry sensors.** Same V1 hardware and RS485 tap,
+  onboard USB-UART and 3.3V regulator) tapping the topside harness between
+  the front panel and the Mach-7 control board, through an off-the-shelf
+  RJ45 breakout board and screw terminals — no cutting or splicing of the
+  existing harness. Two resistor-divided inputs read the display clock and
+  data; four optocouplers bridge the button contacts. Build the read-only
+  half first: it needs no optocouplers and touches nothing the pack can act
+  on, so it proves the interface before anything can press a button.
+- **V1.5 — + water chemistry sensors.** Same V1 hardware and same tap,
   with off-the-shelf DFRobot pH and ORP probes (each with its own analog
   conditioning board) added on, wired into the DevKitC's analog inputs via
   Gravity/JST connectors.
 - **V2 — custom PCB.** Replaces the DevKitC with a purpose-built board: an
   ESP32-WROOM-32UE as the processor, a dedicated buck-converter power
-  supply, and the MAX3485 transceiver wired directly to two onboard RJ45
-  jacks (one to the front panel, one to the Mach-7 control board), removing
-  the external breakout/screw-terminal board. The purchased DFRobot
-  conditioning boards are also replaced by a custom analog front-end that
-  conditions the raw pH and ORP electrodes directly for the ESP32's ADC.
+  supply, and the dividers and optocouplers onboard. Note this no longer
+  needs two RJ45 jacks in series: the board is a parallel tap, not an
+  interposer, so one jack on a splitter off the existing harness does the
+  job and keeps the panel working if the board is unplugged. The purchased
+  DFRobot conditioning boards are also replaced by a custom analog front-end
+  that conditions the raw pH and ORP electrodes directly for the ESP32's
+  ADC.
 
 #### Antenna
 
@@ -107,16 +131,18 @@ reconnect-loop failure mode above.
 
 ![IoT architecture](docs/IOT_Architecture.drawio.png)
 
-The runtime topology described in [`docs/wifi.md`](docs/wifi.md): the RS485
-tap between the topside panel and the Mach-7 pack, the ESP32's MQTT link to
-Mosquitto, and the Node-RED/InfluxDB/Grafana stack on the Pi.
+The runtime topology described in [`docs/wifi.md`](docs/wifi.md): the tap on
+the harness between the topside panel and the Mach-7 pack, the ESP32's MQTT
+link to Mosquitto, and the Node-RED/InfluxDB/Grafana stack on the Pi.
+**Stale:** still labels the tap RS485.
 
 ## Docs
 
-- [`docs/wifi.md`](docs/wifi.md) — plan for exposing the tub over WiFi via
-  MQTT to a Raspberry Pi running Mosquitto and Node-RED: a v1 that monitors
-  and controls the tub from the local network, and a v2 that adds remote
-  access over a VPN (no firmware change).
+- [`docs/wifi.md`](docs/wifi.md) — the topside panel interface (connector
+  pinout, signal levels, frame format), plus the plan for exposing the tub
+  over WiFi via MQTT to a Raspberry Pi running Mosquitto and Node-RED: a v1
+  that monitors and controls the tub from the local network, and a v2 that
+  adds remote access over a VPN (no firmware change).
 - [`docs/wsl-setup.md`](docs/wsl-setup.md) — building and flashing from WSL2:
   forwarding the DevKitC's USB serial port in with usbipd-win, `dialout`
   permissions, and activating this machine's `eim`-installed ESP-IDF.
@@ -139,20 +165,30 @@ idf.py build
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
 
-Bus wiring, matching `hardware/v1` and the `RS485_*` constants in
-`main/main.c`:
+Target wiring for the topside tap. The panel harness is an 8-pin RJ45; pin
+numbering and the signals on it are documented in
+[`docs/wifi.md`](docs/wifi.md#connector).
 
-| ESP32 | Transceiver | |
-| --- | --- | --- |
-| GPIO17 | `TXD` (DI) | ESP32 transmits |
-| GPIO16 | `RXD` (RO) | ESP32 receives |
-| GPIO4 | `EN` (DE + RE~) | direction, driven as the UART's RTS |
+| RJ45 pin | Signal | ESP32 | Via |
+| ---: | --- | --- | --- |
+| 1 | VIN | `VIN` | measure before connecting |
+| 4 | GND | `GND` | — |
+| 6 | Clock | GPIO35 | divider, 220Ω series |
+| 5 | Display data | GPIO34 | divider |
+| 2 | Warm | GPIO25 | optocoupler |
+| 8 | Cool | GPIO26 | optocoupler |
+| 3 | Light | GPIO27 | optocoupler |
+| 7 | Jets/blower | GPIO32 | optocoupler |
 
-UART2, because UART0 is the console and UART1's default pins are wired to
-the module's SPI flash. Note that GPIO1/GPIO3 are *not* usable here despite
-their TX/RX silkscreen: they reach the DevKitC's CP2102N, so a transceiver
-on them contends with the USB bridge and the ROM bootloader's banner would
-be driven onto the spa bus at every reset.
+Clock and data go on GPIO34/35 because those are input-only, which is the
+property you want on the two pins wired to a live panel the firmware must
+never drive. They have no internal pull-ups, so pull externally.
+
+The signals are 5V. Divide them: 2.2k/3.3k lands at 3.0V, with headroom
+under the ESP32's 3.6V absolute maximum even if the pack's rail sits high.
+
+**Not yet implemented.** `main/rs485.c` still drives a MAX3485 on
+GPIO16/17/4 — see Status.
 
 If you're developing in WSL2, the board is attached to Windows and its
 serial port has to be forwarded in before `idf.py` can see it — see
@@ -191,7 +227,9 @@ custom PCB — that starts with v2).
 and runs it over synthetic frames (`make -C firmware/v1/test run`). It needs
 no toolchain beyond stock gcc and takes a few seconds, which is the point —
 the framer is index arithmetic over a protocol spec that is ambiguous exactly
-where it matters.
+where it matters. That reasoning carries over directly to the display decoder
+that replaces it (bit-field extraction and 7-segment reverse-mapping, tested
+against captured frames); the harness should be reused rather than rebuilt.
 
 `firmware-build` compiles the app against `espressif/idf:v6.1`, pinned to the
 IDF the project is developed against rather than `release-v6.1`, which moves.
