@@ -1,6 +1,6 @@
 # Hot Tub Remote Controller
 
-[![CI](https://github.com/nmbarr/hottub_remote_controller/actions/workflows/kicad-checks.yml/badge.svg)](https://github.com/nmbarr/hottub_remote_controller/actions/workflows/kicad-checks.yml)
+[![CI](https://github.com/nmbarr/hottub_remote_controller/actions/workflows/ci.yml/badge.svg)](https://github.com/nmbarr/hottub_remote_controller/actions/workflows/ci.yml)
 
 Hardware and firmware for a remote monitor/controller that taps into a hot
 tub's control system, aiming to expose status and control over WiFi instead
@@ -173,21 +173,48 @@ git submodule update --init --recursive
 
 ## CI
 
-The `CI` workflow (`.github/workflows/kicad-checks.yml`) runs on every push
-and PR, plus weekly against `main` (Mondays) to catch drift even when
-nothing's changed recently.
+The `CI` workflow (`.github/workflows/ci.yml`) runs on every PR, on pushes to
+`main`, and weekly against `main` (Mondays) to catch drift even when
+nothing's changed recently. The split matters: `pull_request` covers proposed
+changes and fork PRs, `push` covers what actually lands, and leaving both
+unrestricted ran every job twice on the same commit.
 
-Its `hardware` job runs KiCad's headless checks: ERC on each project's
-schematic, and DRC on its board once one exists (v1 and v1.5 are
-schematic/wiring-only, no custom PCB — that starts with v2). The job is
-named `hardware` rather than after KiCad so a firmware job can sit
-alongside it once there's firmware to build.
+A second push to a branch supersedes its in-flight run rather than letting it
+finish against a commit nobody is waiting for. `main` is exempt, so each
+landed commit keeps a result of its own.
 
-`hardware` is a required status check on `main`, which is why the workflow
-has no paths filter — a required check skipped by a path filter never
-reports at all, and GitHub blocks the merge on it forever.
+`hardware` runs KiCad's headless checks: ERC on each project's schematic, and
+DRC on its board once one exists (v1 and v1.5 are schematic/wiring-only, no
+custom PCB — that starts with v2).
 
-The job seeds KiCad's default global library tables before running so stock
+`firmware-tests` host-compiles the RS485 framer against stub ESP-IDF headers
+and runs it over synthetic frames (`make -C firmware/v1/test run`). It needs
+no toolchain beyond stock gcc and takes a few seconds, which is the point —
+the framer is index arithmetic over a protocol spec that is ambiguous exactly
+where it matters.
+
+`firmware-build` compiles the app against `espressif/idf:v6.1`, pinned to the
+IDF the project is developed against rather than `release-v6.1`, which moves.
+`wifi_credentials.h` is gitignored and the sources `#error` without it, so the
+job copies the committed `.example` into place; it holds no real secrets and
+never reaches a board from CI.
+
+`firmware-build` is the only job gated on what changed: a `changes` job
+reports whether `firmware/**` (or the workflow itself) was touched, and the
+build is skipped otherwise. The gate is on the job, never on the workflow's
+triggers — see below.
+
+`hardware` is a required status check on `main`, which is why no job has a
+paths filter — a required check skipped by a path filter never reports at
+all, and GitHub blocks the merge on it forever. Skipping a job with `if:` is
+different and safe: the workflow still triggers and the job still reports,
+just with a skipped conclusion, which branch protection accepts. That is why
+`firmware-build` is gated that way rather than with a paths filter.
+
+A status check's identity comes from the job name, not the workflow file name,
+so renaming the file from `kicad-checks.yml` left the required check intact.
+
+The `hardware` job seeds KiCad's default global library tables before running so stock
 libraries resolve the same as on a normal install; only error-severity
 findings fail the build, and remaining warnings (currently just
 `PCM_Espressif`, a library installed locally via KiCad's Plugin & Content
