@@ -1,7 +1,11 @@
 name: CI
 
 on:
+  # Branches with an open PR would otherwise run everything twice, once per
+  # trigger, on the same commit. pull_request covers proposed changes (and
+  # fork PRs, which push does not see); push covers what actually lands.
   push:
+    branches: [main]
   pull_request:
   # No paths filter, on any job: a required status check that a path filter
   # skips never reports at all — GitHub shows it as permanently "pending" and
@@ -13,6 +17,14 @@ on:
     # against main.
     - cron: "0 13 * * 1"
   workflow_dispatch:
+
+# Supersede in-flight runs for the same branch rather than finishing them:
+# pushing twice in quick succession otherwise runs the container build to
+# completion on a commit nobody is waiting for. Never cancels main, where
+# every commit's result is worth having on its own.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   hardware:
