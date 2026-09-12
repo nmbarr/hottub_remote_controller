@@ -4,7 +4,9 @@ An alternative to `firmware/v1`'s custom `esp-mqtt` firmware: instead of
 writing the Balboa display decode from scratch, this vendors
 [kgstorm/Balboa-GS100-with-VL260-topside][kg] — the same reference
 implementation cited in [`docs/wifi.md`](../../docs/wifi.md#reference-implementation) —
-and adapts it to this project's MQTT/Node-RED stack.
+and runs it as upstream intended: talking to Home Assistant, controlled from
+the HA phone app, rather than through this project's Mosquitto/Node-RED
+stack.
 
 **Status: unconfirmed, do not flash yet.** kgstorm's decode is verified
 against a GS100 pack with VL200/VL400-series panels. This tub's pack is a
@@ -27,11 +29,11 @@ base.
 
 ## What was changed vs. upstream
 
-- **`api:` → `mqtt:`** (`esp32-spa.yaml`). This stack has no Home Assistant;
-  entities now publish under `hottub/panel/...` to the Pi's Mosquitto broker
-  instead of over the HA-native API. Command topics (e.g.
-  `hottub/panel/number/spa_high_temperature/command`) replace HA service
-  calls for anything Node-RED needs to write.
+- **`api:` left as-is.** Entities are controlled through Home Assistant and
+  the vendored `spa-control-card.js` Lovelace card (see Frontend, below) —
+  not MQTT. Home Assistant runs on the Pi alongside Mosquitto (which the
+  water-chemistry sensors below still don't need HA for, if that stack ever
+  wants them independently).
 - **Removed the `update:`/second `ota:` platform** that polled kgstorm's
   hosted `manifest.json` for firmware updates — meaningless once this fork
   diverges from upstream, and undesirable to leave pointed at someone else's
@@ -63,5 +65,40 @@ pip install esphome   # or the Docker image, see project notes
 cp secrets.yaml.example secrets.yaml   # fill in real values
 esphome compile esp32-spa.yaml
 ```
+
+## Home Assistant setup
+
+Home Assistant runs on the Pi, separate from this build step:
+
+1. Run Home Assistant on the Pi — [HA Container](https://www.home-assistant.io/installation/raspberrypi#docker-compose)
+   is the lightest fit alongside the existing Mosquitto install; HA OS is
+   the alternative if you'd rather give it the whole disk.
+2. First flash is over USB (`esphome run esp32-spa.yaml`); after that, HA's
+   **ESPHome** integration (Settings → Devices & Services → Add Integration
+   → ESPHome) discovers the device on the network via `api:` and handles
+   OTA updates from then on — no need to keep running `esphome` by hand.
+3. `secrets.yaml`'s `api_key` is the noise-encryption PSK HA and the device
+   share; HA will ask for it (or auto-fill it if it discovered the key from
+   the device) when you add the integration.
+
+### Frontend
+
+`spa-control-card.js` (vendored from upstream, same commit as everything
+else here) is a custom Lovelace card purpose-built for this firmware's
+entities:
+
+1. Copy `spa-control-card.js` into HA's `config/www/` folder.
+2. In the dashboard you want it on: **⋮ menu → Manage resources → Add
+   resource**, URL `/local/spa-control-card.js`, type **JavaScript Module**.
+3. **Add Card → Spa Control Card**, or add this YAML directly:
+
+   ```yaml
+   type: 'custom:spa-control-card'
+   device_name: 'esp32-spa'   # matches esphome: name: in esp32-spa.yaml
+   title: 'Hot Tub Control'
+   ```
+
+If the card doesn't show up, hard-refresh the dashboard
+(Ctrl/Cmd+Shift+R) — HA aggressively caches Lovelace resources.
 
 [kg]: https://github.com/kgstorm/Balboa-GS100-with-VL260-topside
