@@ -27,8 +27,6 @@ Superseded and removed:
 - The MAX3485 in `hardware/esp32-spa` (renamed from `hardware/v1`), and V2's
   plan to interpose between panel and pack. The board no longer sits *in*
   the harness; it hangs off it in parallel.
-- `docs/Hardware_Architecture.drawio.png` and `docs/IOT_Architecture.drawio.png`,
-  both of which still draw the RS485 tap.
 
 Still true: the ESP32 DevKitC, the RJ45 breakout so nothing gets spliced,
 and the V2 antenna work. `firmware/esphome-spa` talks to Home Assistant
@@ -60,8 +58,6 @@ parallel and has to keep working.
 ![Hardware architecture](docs/Hardware_Architecture.drawio.png)
 
 The three planned board revisions (v1, v1.5, v2 — see the roadmap below).
-**Stale:** still drawn around the RS485 tap. Needs redrawing alongside the
-schematic.
 
 ### Hardware roadmap
 
@@ -139,11 +135,12 @@ reconnect-loop failure mode above.
 
 ![IoT architecture](docs/IOT_Architecture.drawio.png)
 
-The runtime topology described in [`docs/wifi.md`](docs/wifi.md): the tap on
-the harness between the topside panel and the Mach-7 pack, the ESP32's MQTT
-link to Mosquitto, and the Node-RED/InfluxDB/Grafana stack on the Pi.
-**Stale:** still labels the tap RS485, and describes MQTT/Node-RED as this
-device's path rather than Home Assistant — see `firmware/esphome-spa`.
+The runtime topology: the parallel tap on the harness between the topside
+panel and the Mach-7 pack, and the ESP32's Home Assistant API link on the
+Pi. Mosquitto/Node-RED are sketched as planned rather than wired up — the
+v1.5 chemistry sensors don't have a Home Assistant-native path the way the
+panel decode does via `firmware/esphome-spa`, so they may end up going
+through MQTT/Node-RED instead once they exist.
 
 ## Docs
 
