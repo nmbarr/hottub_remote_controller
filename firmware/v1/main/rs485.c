@@ -1,3 +1,5 @@
+#include <inttypes.h>
+
 #include "driver/uart.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -177,6 +179,8 @@ static void rs485_task(void *arg)
   uint8_t chunk[READ_CHUNK];
   TickType_t last_stats = xTaskGetTickCount();
 
+  (void)arg;
+
   ESP_LOGI(TAG, "listening on UART%d @ %d 8N1", RS485_UART, RS485_BAUD);
 
   for (;;)
@@ -199,8 +203,10 @@ static void rs485_task(void *arg)
     if (xTaskGetTickCount() - last_stats >= pdMS_TO_TICKS(STATS_INTERVAL_MS))
     {
       last_stats = xTaskGetTickCount();
-      ESP_LOGI(TAG, "frames ok=%lu crc_bad=%lu resync=%lu", s_ok, s_crc_bad,
-               s_resync);
+      // PRIu32 rather than %lu: uint32_t is a different underlying type on
+      // the host, where the framer is also compiled for the tests.
+      ESP_LOGI(TAG, "frames ok=%" PRIu32 " crc_bad=%" PRIu32 " resync=%" PRIu32,
+               s_ok, s_crc_bad, s_resync);
     }
   }
 }
