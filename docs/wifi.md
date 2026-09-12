@@ -86,20 +86,113 @@ switch either way.
 
 ### Electrical
 
-- **Buttons** idle at ~2.5V and are pulled to 5V when pressed. Drive them
-  through an **optocoupler per button**, bridging the contact rather than
-  driving a GPIO onto the line. The panel stays wired in parallel and has to
-  keep working, so the tap must neither load the line nor backfeed it — and
-  an opto also keeps a firmware bug from parking a button in the pressed
-  state at a level the panel cannot override.
-- **Clock and data** are 5V and need dividing down. kgstorm uses 2.2k/4.7k
-  plus a 220Ω series resistor, which lands at 5 × 4.7/6.9 = **3.41V**
-  against the ESP32's 3.6V absolute maximum. That works, but a rail sitting
-  at 5.25V puts it at 3.58V. **2.2k/3.3k** gives 3.0V and real headroom for
-  no cost.
+RJ45 pin 1 is **+5V** — kgstorm's wiring diagram labels it outright, and he
+feeds the DevKit's VIN from it. Measure it before trusting that on this pack.
+
+- **Clock and data** are 5V and need dividing down. His two sources disagree
+  slightly and both sit tighter than they need to:
+
+  | Source | Top / bottom | At the GPIO |
+  | --- | --- | --- |
+  | wiring diagram | 2.2k / 4.7k | 3.41V |
+  | PCB BOM (R1–R4) | 4.7k / 10k | 3.40V |
+  | **used here** | **6.8k / 10k** | **2.98V** |
+
+  The ESP32's absolute maximum is 3.6V, so 3.4V works — but a rail sitting
+  at 5.25V puts it at 3.58V. 6.8k/10k keeps the 10k leg and buys ~0.6V of
+  headroom for the price of one resistor value.
 - **Use input-only GPIOs for clock and data** (GPIO34–39). They have no
-  internal pull-ups, so pull externally (~10k) and keep the series resistor
-  on the clock line, which is the one taking an interrupt on every edge.
+  internal pull-ups, so pull externally (~10k). Keep a small series resistor
+  (100–220Ω) on each for edge-ringing and ESD — not current limiting — and
+  especially on the clock line, which takes an interrupt on every edge.
+
+### Button injection
+
+Four **PC817B** optocouplers, one per button. The transistor goes across the
+same two points the membrane switch bridges: you are adding a second switch
+in parallel with the panel's, not driving the line.
+
+| PC817 pin | | Connects to |
+| ---: | --- | --- |
+| 1 | Anode | ESP32 GPIO, through 220Ω |
+| 2 | Cathode | ESP32 GND |
+| 3 | Emitter | RJ45 button line |
+| 4 | Collector | RJ45 pin 1 (+5V) |
+
+Pin 1 is marked with a dot or chamfer.
+
+| Opto | GPIO | Emitter → RJ45 | Button |
+| --- | --- | --- | --- |
+| U1 | 25 | pin 2 | Warm |
+| U2 | 26 | pin 8 | Cool |
+| U3 | 27 | pin 3 | Light |
+| U4 | 32 | pin 7 | Jets/blower |
+
+**Orientation is easy to get backwards.** Collector to +5V, emitter to the
+button line, never the reverse. That makes it an emitter follower, which
+will not hard-saturate — but the button line is a high-impedance divider
+node (it idles at 2.5V off a 5V rail), and a PC817B at ~10mA of LED current
+sources far more than that node needs. It pulls to within a couple hundred
+mV of 5V.
+
+**220Ω on the LED, not 100Ω.** His two sources disagree here too, and the
+breadboard value is the right one: 220Ω gives (3.3 − 1.15)/220 ≈ 9.8mA,
+where the PCB's 100Ω gives 21mA — past the ESP32's 20mA recommended per-pin
+source current, for no benefit.
+
+**Specify the B rank.** PC817B is CTR 130–260%, so 10mA in yields 13–26mA
+out. Ungraded PC817 is 50–600%; at the bottom of that spread the part that
+gets soldered behaves differently from the one that was prototyped with.
+
+#### No resistor between +5V and the collector
+
+Deliberately. His PCB has none — all ten resistors are accounted for as two
+dividers, two signal series and four LED series.
+
+The membrane switch being emulated is a bare short, so whatever current
+flows on a real press is what the pack was designed to sink; putting a
+resistor in the path makes the injected press electrically *different* from
+a real one. Current is set by the load anyway — roughly (5V − Vce) over the
+pack's pull-down, on the order of 0.5mA for a 10k leg, against the PC817's
+50mA maximum.
+
+Headroom is the scarce resource. There is only 2.5V between idle and
+pressed, the emitter follower already eats some of it, and the pack's logic
+threshold is unknown. A series resistor stacks another drop onto that budget
+and buys the worst failure mode available: presses that work on the bench
+and go intermittent cold, wet, or once contact resistance has crept.
+
+**Measure before committing this to a schematic.** With the panel plugged
+in, put a milliammeter between a button line and +5V — that is a real press,
+current-metered. Sub-milliamp is expected and confirms the above. Tens of mA
+means the topology is not what is documented here; stop and re-probe. Check
+the idle level on all four button pins while there rather than assuming 2.5V
+across the board.
+
+#### Isolation, or the lack of it
+
+This circuit is **not galvanically isolated**. The ESP32 takes VIN from RJ45
+pin 1 and ground from pin 4, so ESP32 ground *is* spa ground. The optos buy
+a floating contact, not isolation: a switch that works regardless of the
+levels on either side, cannot backfeed 5V into a 3.3V pin, and cannot assert
+a button from a floating or bootstrapping GPIO. Those are real and are most
+of the value — but they are not isolation, and the distinction matters for a
+board in a wet bay sharing a ground with a heater.
+
+Real isolation means powering the ESP32 from its own supply and leaving RJ45
+pins 1 and 4 off the board entirely. The catch is that the clock/data
+dividers then lose their ground reference, so those two signals need optos
+or a digital isolator as well and the divider approach stops working. That
+is a fork worth deciding before layout, not after.
+
+A stuck-on opto is not the reason to add parts. It is electrically
+indistinguishable from a stuck membrane switch, which is a failure the pack
+already has to tolerate. The realistic fault is a firmware bug parking a
+press, and the fix for that is in firmware: bound every press with a hard
+maximum duration enforced by a timer that is not the code path that started
+the press. GPIO25/26/27/32 are boot-safe, which is why they were chosen —
+but confirm none of them float high before `app_main` runs, because an opto
+does not care whether the level was intentional.
 
 ### Frame format
 

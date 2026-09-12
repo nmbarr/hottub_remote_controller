@@ -171,7 +171,7 @@ numbering and the signals on it are documented in
 
 | RJ45 pin | Signal | ESP32 | Via |
 | ---: | --- | --- | --- |
-| 1 | VIN | `VIN` | measure before connecting |
+| 1 | +5V | `VIN` | measure before connecting |
 | 4 | GND | `GND` | — |
 | 6 | Clock | GPIO35 | divider, 220Ω series |
 | 5 | Display data | GPIO34 | divider |
@@ -184,8 +184,11 @@ Clock and data go on GPIO34/35 because those are input-only, which is the
 property you want on the two pins wired to a live panel the firmware must
 never drive. They have no internal pull-ups, so pull externally.
 
-The signals are 5V. Divide them: 2.2k/3.3k lands at 3.0V, with headroom
+The signals are 5V. Divide them: 6.8k/10k lands at 2.98V, with headroom
 under the ESP32's 3.6V absolute maximum even if the pack's rail sits high.
+Buttons go through a PC817B each, 220Ω on the LED, collector to +5V and
+emitter to the button line — wiring and the reasoning behind the values are
+in [`docs/wifi.md`](docs/wifi.md#button-injection).
 
 **Not yet implemented.** `main/rs485.c` still drives a MAX3485 on
 GPIO16/17/4 — see Status.
