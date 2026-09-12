@@ -1,17 +1,30 @@
 name: CI
 
 on:
+  # Branches with an open PR would otherwise run everything twice, once per
+  # trigger, on the same commit. pull_request covers proposed changes (and
+  # fork PRs, which push does not see); push covers what actually lands.
   push:
+    branches: [main]
   pull_request:
-  # No paths filter: the `hardware` job is a required status check on main,
-  # and a required check that a path filter skips never reports at all —
-  # GitHub shows it as permanently "pending" and blocks the merge forever.
-  # Running it on every push/PR is cheap (~30s) and keeps the check honest.
+  # No paths filter, on any job: a required status check that a path filter
+  # skips never reports at all — GitHub shows it as permanently "pending" and
+  # blocks the merge forever. Every job here is cheap enough to run always,
+  # which also keeps the checks honest.
   schedule:
-    # Mondays at 13:00 UTC — catches drift (e.g. a new KiCad image) even
-    # when no PR has touched hardware/ recently. Always runs against main.
+    # Mondays at 13:00 UTC — catches drift (a new KiCad image, a moved IDF
+    # dependency) even when no PR has touched the tree recently. Always runs
+    # against main.
     - cron: "0 13 * * 1"
   workflow_dispatch:
+
+# Supersede in-flight runs for the same branch rather than finishing them:
+# pushing twice in quick succession otherwise runs the container build to
+# completion on a commit nobody is waiting for. Never cancels main, where
+# every commit's result is worth having on its own.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   hardware:
@@ -88,3 +101,35 @@ jobs:
             hardware/**/*-erc.json
             hardware/**/*-drc.json
           if-no-files-found: warn
+
+  # Seconds, no toolchain: the framer is index arithmetic over an ambiguous
+  # spec, and this is what stops a silent off-by-one reaching the bus.
+  firmware-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run the RS485 framer tests
+        run: make -C firmware/v1/test run
+
+  firmware-build:
+    runs-on: ubuntu-latest
+    # Pinned to the IDF the project is developed against, not release-v6.1,
+    # which moves under you.
+    container: espressif/idf:v6.1
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Supply placeholder credentials
+        # wifi_credentials.h is gitignored and mqtt.c/wifi.c #error without
+        # it. The example has no real secrets in it and never reaches a board
+        # from here, so it is exactly what a compile check wants.
+        run: |
+          cp firmware/v1/main/wifi_credentials.h.example \
+             firmware/v1/main/wifi_credentials.h
+
+      - name: Build
+        shell: bash
+        run: |
+          . "$IDF_PATH/export.sh"
+          idf.py -C firmware/v1 build
