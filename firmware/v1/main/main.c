@@ -1,34 +1,17 @@
-#include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include "driver/uart.h"
+#include <stdint.h>
 #include "driver/gpio.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "wifi.h"
 #include "mqtt.h"
+#include "rs485.h"
 
-static const char *TAG = "uart_test";
-
-// UART2: UART0 is the console, UART1's default pins are the SPI flash.
-// Not GPIO1/3 despite the TX/RX silkscreen -- those reach the CP2102N, so
-// the ROM bootloader's banner would land on the spa bus at every reset.
-#define RS485_UART UART_NUM_2
-#define RS485_TX_GPIO 17  // -> transceiver TXD (DI)
-#define RS485_RX_GPIO 16  // <- transceiver RXD (RO)
-#define RS485_DE_GPIO 4   // -> transceiver EN  (DE + RE)
-
-#define RS485_BAUD 115200
-#define RS485_RX_BUF 1024  // must exceed the 128-byte hardware FIFO
+static const char *TAG = "main";
 
 #define LED_GPIO 19  // Green LED
-
-#define READ_TIMEOUT_MS 100
-#define IDLE_GIVEUP_MS 5000
-#define IDLE_GIVEUP_READS (IDLE_GIVEUP_MS / READ_TIMEOUT_MS)
-
-#define CAPTURE_BYTES 2048
 
 // The pin is an output, so gpio_get_level cannot read back what we drove.
 // This is the only record of what the LED is doing.
@@ -94,29 +77,39 @@ static void on_mqtt_connected(void)
   mqtt_publish_item_state("led", s_led_state ? "on" : "off");
 }
 
-static void rs485_init(void)
+// Protocol discovery aid: the status broadcast repeats every second, so a
+// frame is only worth dumping the first time its type shows up.
+#define SEEN_TYPES_MAX 16
+
+static uint16_t s_seen_types[SEEN_TYPES_MAX];
+static int s_seen_count;
+
+// Runs on the RS485 task. Logging only for now -- decoding the status
+// broadcast into hottub/state is the next piece.
+static void on_rs485_message(const uint8_t *body, size_t len)
 {
-  uart_config_t uart_config = {
-      .baud_rate = RS485_BAUD,
-      .data_bits = UART_DATA_8_BITS,
-      .parity = UART_PARITY_DISABLE,
-      .stop_bits = UART_STOP_BITS_1,
-      // Must stay disabled: flow control would claim RTS, which half-duplex
-      // mode needs for the direction line.
-      .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-      .source_clk = UART_SCLK_DEFAULT,
-  };
+  if (len < 3)
+  {
+    return;
+  }
 
-  ESP_ERROR_CHECK(uart_param_config(RS485_UART, &uart_config));
-  ESP_ERROR_CHECK(uart_set_pin(RS485_UART, RS485_TX_GPIO, RS485_RX_GPIO,
-                               RS485_DE_GPIO, UART_PIN_NO_CHANGE));
+  uint16_t type = (uint16_t)((body[1] << 8) | body[2]);
+  for (int i = 0; i < s_seen_count; i++)
+  {
+    if (s_seen_types[i] == type)
+    {
+      return;
+    }
+  }
 
-  // tx_buffer_size 0 makes writes block until the bytes reach the FIFO.
-  ESP_ERROR_CHECK(uart_driver_install(RS485_UART, RS485_RX_BUF, 0, 0, NULL, 0));
+  if (s_seen_count < SEEN_TYPES_MAX)
+  {
+    s_seen_types[s_seen_count++] = type;
+  }
 
-  // Must follow uart_driver_install. Kept on in this receive-only build so
-  // the driver holds the direction line low instead of GPIO4 floating.
-  ESP_ERROR_CHECK(uart_set_mode(RS485_UART, UART_MODE_RS485_HALF_DUPLEX));
+  ESP_LOGI(TAG, "new message type %02x %02x from %02x, %d bytes", body[1],
+           body[2], body[0], (int)len);
+  ESP_LOG_BUFFER_HEXDUMP(TAG, body, len, ESP_LOG_INFO);
 }
 
 static void nvs_init(void)
@@ -144,59 +137,8 @@ void app_main(void)
   wifi_init_sta();
   mqtt_start();
 
-  rs485_init();
+  rs485_set_message_handler(on_rs485_message);
+  rs485_start();
 
-  // Collect first, dump once. Hexdumping as bytes arrive costs ~5x the
-  // bandwidth we receive at, and the console is the same 115200.
-  static uint8_t capture[CAPTURE_BYTES];
-  int offset = 0;
-  int idle = 0;
-  const char *why = "buffer full";
-
-  ESP_LOGI(TAG, "listening on UART%d @ %d 8N1, capturing %d bytes",
-           RS485_UART, RS485_BAUD, (int)sizeof(capture));
-
-  while (offset < (int)sizeof(capture))
-  {
-    int n = uart_read_bytes(RS485_UART, capture + offset,
-                            sizeof(capture) - offset,
-                            pdMS_TO_TICKS(READ_TIMEOUT_MS));
-    if (n < 0)
-    {
-      ESP_LOGE(TAG, "uart_read_bytes failed (%d)", n);
-      why = "read error";
-      break;
-    }
-    else if (n == 0)
-    {
-      if (++idle >= IDLE_GIVEUP_READS)
-      {
-        why = "idle timeout";
-        break;
-      }
-      else
-      {
-        continue;
-      }
-    }
-    else
-    {
-      idle = 0;
-      offset += n;
-      // Timestamps on these give the arrival cadence the hexdump cannot.
-      ESP_LOGI(TAG, "+%d", n);
-    }
-  }
-
-  ESP_LOGI(TAG, "captured %d bytes (%s)", offset, why);
-
-  // Stand-in for a decoded status blob, to prove the publish path end to end.
-  char json[64];
-  snprintf(json, sizeof(json), "{\"captured_bytes\":%d}", offset);
-  mqtt_publish_state(json);
-
-  if (offset > 0)
-  {
-    ESP_LOG_BUFFER_HEXDUMP(TAG, capture, offset, ESP_LOG_INFO);
-  }
+  // Returning is fine: the WiFi, MQTT and RS485 tasks carry on without us.
 }
