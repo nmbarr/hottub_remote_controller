@@ -1,6 +1,6 @@
 # ESPHome fork (experimental)
 
-An alternative to `firmware/v1`'s custom `esp-mqtt` firmware: instead of
+Replaces `firmware/v1`'s custom `esp-mqtt` firmware (now deleted): instead of
 writing the Balboa display decode from scratch, this vendors
 [kgstorm/Balboa-GS100-with-VL260-topside][kg] — the same reference
 implementation cited in [`docs/wifi.md`](../../docs/wifi.md#reference-implementation) —
@@ -43,11 +43,9 @@ base.
   additions alongside kgstorm's decode, not modifications to it — the
   custom `esp32_spa` component (`esp32-spa/inputs/`) is untouched.
 - **GPIO pins left as upstream's** (CLK=35, DATA=34, WARM=25, COOL=26,
-  LIGHT=27, PUMP=32) — this board's v1 schematic hasn't finalized its own
-  pin assignments yet, so these are placeholders, not confirmed against
-  `hardware/v1`. Cross-check against the schematic's `DISPLAY_CLK`/
-  `DISPLAY_DATA`/`WARM_BUTTON`/`COOL_BUTTON`/`LIGHT_BUTTON`/`JET_BUTTON`
-  net labels before wiring.
+  LIGHT=27, PUMP=32) — and these turn out to already match
+  `hardware/esp32-spa`'s wiring table (see the root README's Firmware
+  section), so no pin remapping was actually needed here.
 
 ## What still needs real values, not placeholders
 
@@ -56,7 +54,8 @@ base.
   calibration. Needs real two-point buffer-solution readings once a probe
   is on hand.
 - **I2C pins** (`sda: GPIO21` / `scl: GPIO22`) — arbitrary defaults, not
-  checked against `hardware/v1`'s actual wiring.
+  checked against `hardware/esp32-spa`'s actual wiring (the v1.5 chemistry
+  sensors aren't on that schematic yet).
 
 ## Building
 

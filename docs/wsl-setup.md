@@ -2,8 +2,8 @@
 
 Development happens in WSL2 (Ubuntu 24.04) on a Windows host. The ESP32
 DevKitC plugs into the Windows machine, so its USB serial port has to be
-forwarded into WSL before `idf.py` can see it. This note records that
-forwarding setup and two environment gotchas that cost time the first time
+forwarded into WSL before `esphome` can see it. This note records that
+forwarding setup and an environment gotcha that cost time the first time
 around.
 
 ## Forwarding the board into WSL
@@ -59,26 +59,6 @@ Group membership is only picked up by new logins, and in WSL that means
 restarting the distro — run `wsl --shutdown` from Windows and reopen the
 terminal. (`newgrp dialout` works for a single shell if you'd rather not.)
 
-## Activating ESP-IDF
-
-IDF v6.1 here was installed with `eim` (the ESP-IDF Installation Manager),
-which lays things out differently from the classic `install.sh`:
-
-- The IDF checkout is `~/.espressif/v6.1/esp-idf`.
-- **`~/.espressif/v6.1/esp-idf/export.sh` does not work.** It looks for a
-  Python virtualenv at `~/.espressif/python_env/idf6.1_py3.12_env`, which an
-  `eim` install never creates, and fails with `ESP-IDF Python virtual
-  environment ... not found. Please run the install script`. The install is
-  fine; the script is just the wrong entry point.
-- The working entry point is `~/.espressif/tools/activate_idf_v6.1.sh`,
-  wrapped in `~/.bashrc` as an `idf` alias.
-
-So a session starts with:
-
-```bash
-idf   # alias for: . ~/.espressif/tools/activate_idf_v6.1.sh
-```
-
 ## Verifying the chain
 
 Before blaming the firmware, confirm the host can reach the chip at all.
@@ -92,15 +72,13 @@ Crystal frequency:  40MHz
 MAC:                44:1d:64:4f:5b:c8
 ```
 
-A D0WD-V3 is the plain ESP32, matching `CONFIG_IDF_TARGET="esp32"` in
-`firmware/v1/sdkconfig.defaults`. Because the DevKitC wires DTR/RTS to
+A D0WD-V3 is the plain ESP32, matching `board: esp32dev` in
+`firmware/esphome-spa/esp32-spa.yaml`. Because the DevKitC wires DTR/RTS to
 EN/GPIO0, esptool resets the board into and out of the bootloader by itself —
 there's no need to hold BOOT while flashing.
 
-Then, from `firmware/v1`:
-
 ```bash
-idf.py -p /dev/ttyUSB0 flash monitor   # Ctrl-] exits the monitor
+esphome run firmware/esphome-spa/esp32-spa.yaml -p /dev/ttyUSB0
 ```
 
 ## Troubleshooting
@@ -114,5 +92,3 @@ idf.py -p /dev/ttyUSB0 flash monitor   # Ctrl-] exits the monitor
   serial monitor and retry.
 - **usbipd reports the device shared but attach errors about drivers** —
   `usbipd unbind --busid 2-4`, then `usbipd bind --force --busid 2-4`.
-- **`export.sh` complains about a missing virtualenv** — wrong script; see
-  [Activating ESP-IDF](#activating-esp-idf).

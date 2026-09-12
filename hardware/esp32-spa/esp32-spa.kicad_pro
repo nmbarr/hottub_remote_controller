@@ -256,7 +256,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "v1.kicad_pro",
+    "filename": "esp32-spa.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -424,7 +424,7 @@
     "subpart_id_separator": 0,
     "top_level_sheets": [
       {
-        "filename": "v1.kicad_sch",
+        "filename": "esp32-spa.kicad_sch",
         "name": "Root",
         "uuid": "ef020825-7448-4382-ac7c-ba8571f4d9dd"
       }

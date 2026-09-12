@@ -34,12 +34,11 @@ standing*. A Raspberry Pi on the LAN acts as the IoT server:
   `mqtt in`/`mqtt out` nodes. `node-red-dashboard` provides the phone UI
   (gauges for temp/pH/ORP, a slider for the setpoint), so there's no custom
   frontend in this repo and UI changes never require reflashing the board.
-- **Firmware side**: `esp-mqtt` (`mqtt_client`). It shipped inside ESP-IDF
-  through 5.x; in 6.x it moved out of core and is now the managed component
-  `espressif/mqtt`, declared in `firmware/v1/main/idf_component.yml` and
-  fetched at build time. Still nothing vendored into this repo — but it is a
-  declared dependency now rather than something that is simply present, so
-  `dependencies.lock` is committed to pin the resolved version.
+- **Firmware side** (stale): this bullet described a from-scratch `esp-mqtt`
+  (`mqtt_client`) firmware, declared as a managed component in the
+  now-deleted `firmware/v1`. That firmware was replaced by
+  `firmware/esphome-spa` — a vendored ESPHome fork that talks to Home
+  Assistant's native API instead, not MQTT. See its own README.
 
 ## Topside panel interface
 

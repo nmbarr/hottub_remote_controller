@@ -1,6 +1,0 @@
-dependencies:
-  # esp-mqtt left IDF core in 6.x; it is a managed component now. Fetched at
-  # build time into managed_components/ (gitignored) per dependencies.lock.
-  espressif/mqtt: "^1.0.0"
-  idf:
-    version: ">=5.3"

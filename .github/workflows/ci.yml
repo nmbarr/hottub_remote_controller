@@ -35,7 +35,6 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      firmware: ${{ steps.filter.outputs.firmware }}
       esphome: ${{ steps.filter.outputs.esphome }}
     steps:
       - uses: actions/checkout@v4
@@ -46,9 +45,6 @@ jobs:
         id: filter
         with:
           filters: |
-            firmware:
-              - 'firmware/**'
-              - '.github/workflows/ci.yml'
             esphome:
               - 'firmware/esphome-spa/**'
               - '.github/workflows/ci.yml'
@@ -128,46 +124,10 @@ jobs:
             hardware/**/*-drc.json
           if-no-files-found: warn
 
-  # Seconds, no toolchain: the framer is index arithmetic over an ambiguous
-  # spec, and this is what stops a silent off-by-one reaching the bus.
-  firmware-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run the RS485 framer tests
-        run: make -C firmware/v1/test run
-
-  # Worth gating: ~3 minutes, nearly all of it pulling the image. hardware
-  # (~45s) and firmware-tests (~3s) stay unconditional, since routing them
-  # through `changes` would cost more than it saves and keeps the required
-  # check as simple as possible.
-  firmware-build:
-    needs: changes
-    if: needs.changes.outputs.firmware == 'true'
-    runs-on: ubuntu-latest
-    # Pinned to the IDF the project is developed against, not release-v6.1,
-    # which moves under you.
-    container: espressif/idf:v6.1
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Supply placeholder credentials
-        # wifi_credentials.h is gitignored and mqtt.c/wifi.c #error without
-        # it. The example has no real secrets in it and never reaches a board
-        # from here, so it is exactly what a compile check wants.
-        run: |
-          cp firmware/v1/main/wifi_credentials.h.example \
-             firmware/v1/main/wifi_credentials.h
-
-      - name: Build
-        shell: bash
-        run: |
-          . "$IDF_PATH/export.sh"
-          idf.py -C firmware/v1 build
-
-  # Also gated: ESPHome pulls its own ESP-IDF on first run, comparable cost
-  # to firmware-build's image pull. This is what caught the missing
+  # Worth gating: ESPHome pulls its own ESP-IDF on first run (cached below,
+  # but still the priciest job here). hardware stays unconditional, since
+  # routing it through `changes` would cost more than it saves and keeps the
+  # required check as simple as possible. This is what caught the missing
   # text_sensor.h include upstream needed against current ESPHome — a
   # config-only edit here can still break the vendored component's compile.
   esphome-build:

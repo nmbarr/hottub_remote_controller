@@ -14,20 +14,27 @@ all: it is a dumb terminal on a 6-signal harness — four raw button contacts
 plus a clock/data pair carrying the 7-segment display bitmap. See
 [`docs/wifi.md`](docs/wifi.md#topside-panel-interface).
 
-That invalidates the RS485 design this repo was built around. Superseded:
+That invalidated the RS485 design this repo was originally built around.
+Superseded and removed:
 
-- `firmware/v1/main/rs485.c` and `firmware/v1/test/` — the UART2 half-duplex
-  driver, the `0x7e` framer and the Balboa CRC-8. Kept in tree for now so the
-  build and CI stay green while the replacement is written, but none of it
-  describes this tub.
-- The MAX3485 in `hardware/v1`, and V2's plan to interpose between panel and
-  pack. The board no longer sits *in* the harness; it hangs off it in
-  parallel.
+- `firmware/v1` — the from-scratch UART2 half-duplex driver, `0x7e` framer,
+  and Balboa CRC-8. None of it described this tub, and it's been replaced
+  by `firmware/esphome-spa`: a vendored, adapted fork of
+  [kgstorm/Balboa-GS100-with-VL260-topside](https://github.com/kgstorm/Balboa-GS100-with-VL260-topside)
+  (see [`firmware/esphome-spa/README.md`](firmware/esphome-spa/README.md)),
+  which already implements the display-tap decode this tub's interface
+  needs.
+- The MAX3485 in `hardware/esp32-spa` (renamed from `hardware/v1`), and V2's
+  plan to interpose between panel and pack. The board no longer sits *in*
+  the harness; it hangs off it in parallel.
 - `docs/Hardware_Architecture.drawio.png` and `docs/IOT_Architecture.drawio.png`,
   both of which still draw the RS485 tap.
 
-Still true: the ESP32 DevKitC, the MQTT topology to Mosquitto/Node-RED, the
-RJ45 breakout so nothing gets spliced, and the V2 antenna work.
+Still true: the ESP32 DevKitC, the RJ45 breakout so nothing gets spliced,
+and the V2 antenna work. `firmware/esphome-spa` talks to Home Assistant
+(running on the same Pi) rather than MQTT/Node-RED directly — see its own
+README — though Mosquitto/Node-RED may still end up in the picture for
+anything without an HA integration, like the planned pH/ORP sensors.
 
 Nothing has been connected to the tub yet. The interface above is confirmed
 for kgstorm's GS100; this pack is a Mach 7 (RS-81), and matching it is still
@@ -36,7 +43,8 @@ an inference from parts listings — see the read-only check in
 
 ## Hardware
 
-`hardware/v1` contains the KiCad project for the v1 board:
+`hardware/esp32-spa` (renamed from `hardware/v1`) contains the KiCad project
+for the v1 board:
 
 - **ESP32-DevKitC** as the main controller.
 - **MAX3485** RS485 transceiver — **superseded**, see Status. The schematic
@@ -134,7 +142,8 @@ reconnect-loop failure mode above.
 The runtime topology described in [`docs/wifi.md`](docs/wifi.md): the tap on
 the harness between the topside panel and the Mach-7 pack, the ESP32's MQTT
 link to Mosquitto, and the Node-RED/InfluxDB/Grafana stack on the Pi.
-**Stale:** still labels the tap RS485.
+**Stale:** still labels the tap RS485, and describes MQTT/Node-RED as this
+device's path rather than Home Assistant — see `firmware/esphome-spa`.
 
 ## Docs
 
@@ -142,7 +151,10 @@ link to Mosquitto, and the Node-RED/InfluxDB/Grafana stack on the Pi.
   pinout, signal levels, frame format), plus the plan for exposing the tub
   over WiFi via MQTT to a Raspberry Pi running Mosquitto and Node-RED: a v1
   that monitors and controls the tub from the local network, and a v2 that
-  adds remote access over a VPN (no firmware change).
+  adds remote access over a VPN (no firmware change). **Stale on the MQTT
+  point** — see `firmware/esphome-spa`'s README for the Home Assistant path
+  this device actually takes; the panel-interface reverse-engineering
+  (pinout, signal levels, frame format) is unaffected.
 - [`docs/wsl-setup.md`](docs/wsl-setup.md) — building and flashing from WSL2:
   forwarding the DevKitC's USB serial port in with usbipd-win, `dialout`
   permissions, and activating this machine's `eim`-installed ESP-IDF.
@@ -150,19 +162,21 @@ link to Mosquitto, and the Node-RED/InfluxDB/Grafana stack on the Pi.
 ## Repository layout
 
 ```
-hardware/v1/        KiCad schematic and project for the v1 board
-firmware/v1/        ESP-IDF application for the v1 board
-Drivers/libdrivers  Submodule of shared, vendor-agnostic sensor drivers
-docs/               Hardware and IoT architecture diagrams and design notes
+hardware/esp32-spa/    KiCad schematic and project for the v1 board
+firmware/esphome-spa/  ESPHome firmware (fork of kgstorm's), Home Assistant-controlled
+Drivers/libdrivers     Submodule of shared, vendor-agnostic sensor drivers
+docs/                  Hardware and IoT architecture diagrams and design notes
 ```
 
 ## Firmware
 
-`firmware/v1` is a standard ESP-IDF project, built against ESP-IDF 6.1:
+`firmware/esphome-spa` is an ESPHome project — see
+[`firmware/esphome-spa/README.md`](firmware/esphome-spa/README.md) for
+provenance, build, and Home Assistant setup:
 
 ```
-idf.py build
-idf.py -p /dev/ttyUSB0 flash monitor
+pip install esphome
+esphome run firmware/esphome-spa/esp32-spa.yaml   # first flash, over USB
 ```
 
 Target wiring for the topside tap. The panel harness is an 8-pin RJ45; pin
@@ -190,17 +204,9 @@ Buttons go through a PC817B each, 220Ω on the LED, collector to +5V and
 emitter to the button line — wiring and the reasoning behind the values are
 in [`docs/wifi.md`](docs/wifi.md#button-injection).
 
-**Not yet implemented.** `main/rs485.c` still drives a MAX3485 on
-GPIO16/17/4 — see Status.
-
 If you're developing in WSL2, the board is attached to Windows and its
-serial port has to be forwarded in before `idf.py` can see it — see
+serial port has to be forwarded in before `esphome` can see it — see
 [`docs/wsl-setup.md`](docs/wsl-setup.md).
-
-Project configuration lives in `sdkconfig.defaults`; the generated
-`sdkconfig` is not committed, so delete it and rebuild after changing the
-defaults. `idf.py build` also writes `build/compile_commands.json`, which
-the repo's `.clangd` points at for editor completion.
 
 ## Submodules
 
@@ -226,31 +232,25 @@ landed commit keeps a result of its own.
 DRC on its board once one exists (v1 and v1.5 are schematic/wiring-only, no
 custom PCB — that starts with v2).
 
-`firmware-tests` host-compiles the RS485 framer against stub ESP-IDF headers
-and runs it over synthetic frames (`make -C firmware/v1/test run`). It needs
-no toolchain beyond stock gcc and takes a few seconds, which is the point —
-the framer is index arithmetic over a protocol spec that is ambiguous exactly
-where it matters. That reasoning carries over directly to the display decoder
-that replaces it (bit-field extraction and 7-segment reverse-mapping, tested
-against captured frames); the harness should be reused rather than rebuilt.
+`esphome-build` compiles `firmware/esphome-spa/esp32-spa.yaml`, installing
+ESPHome fresh each run (its ESP-IDF download is cached across runs) and
+supplying the committed `secrets.yaml.example` in place of the gitignored
+real `secrets.yaml`; it holds no real secrets and never reaches a board from
+CI. This is what catches a vendored-component compile break against a newer
+ESPHome release, same as it caught the missing `text_sensor.h` include
+upstream needed.
 
-`firmware-build` compiles the app against `espressif/idf:v6.1`, pinned to the
-IDF the project is developed against rather than `release-v6.1`, which moves.
-`wifi_credentials.h` is gitignored and the sources `#error` without it, so the
-job copies the committed `.example` into place; it holds no real secrets and
-never reaches a board from CI.
-
-`firmware-build` is the only job gated on what changed: a `changes` job
-reports whether `firmware/**` (or the workflow itself) was touched, and the
-build is skipped otherwise. The gate is on the job, never on the workflow's
-triggers — see below.
+`esphome-build` is the only job gated on what changed: a `changes` job
+reports whether `firmware/esphome-spa/**` (or the workflow itself) was
+touched, and the build is skipped otherwise. The gate is on the job, never on
+the workflow's triggers — see below.
 
 `hardware` is a required status check on `main`, which is why no job has a
 paths filter — a required check skipped by a path filter never reports at
 all, and GitHub blocks the merge on it forever. Skipping a job with `if:` is
 different and safe: the workflow still triggers and the job still reports,
 just with a skipped conclusion, which branch protection accepts. That is why
-`firmware-build` is gated that way rather than with a paths filter.
+`esphome-build` is gated that way rather than with a paths filter.
 
 A status check's identity comes from the job name, not the workflow file name,
 so renaming the file from `kicad-checks.yml` left the required check intact.
