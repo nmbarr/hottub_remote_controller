@@ -36,6 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       firmware: ${{ steps.filter.outputs.firmware }}
+      esphome: ${{ steps.filter.outputs.esphome }}
     steps:
       - uses: actions/checkout@v4
 
@@ -47,6 +48,9 @@ jobs:
           filters: |
             firmware:
               - 'firmware/**'
+              - '.github/workflows/ci.yml'
+            esphome:
+              - 'firmware/esphome-spa/**'
               - '.github/workflows/ci.yml'
 
   hardware:
@@ -134,9 +138,9 @@ jobs:
       - name: Run the RS485 framer tests
         run: make -C firmware/v1/test run
 
-  # The only job worth gating: ~3 minutes, nearly all of it pulling the image.
-  # hardware (~45s) and firmware-tests (~3s) stay unconditional, since routing
-  # them through `changes` would cost more than it saves and keeps the required
+  # Worth gating: ~3 minutes, nearly all of it pulling the image. hardware
+  # (~45s) and firmware-tests (~3s) stay unconditional, since routing them
+  # through `changes` would cost more than it saves and keeps the required
   # check as simple as possible.
   firmware-build:
     needs: changes
@@ -161,3 +165,38 @@ jobs:
         run: |
           . "$IDF_PATH/export.sh"
           idf.py -C firmware/v1 build
+
+  # Also gated: ESPHome pulls its own ESP-IDF on first run, comparable cost
+  # to firmware-build's image pull. This is what caught the missing
+  # text_sensor.h include upstream needed against current ESPHome — a
+  # config-only edit here can still break the vendored component's compile.
+  esphome-build:
+    needs: changes
+    if: needs.changes.outputs.esphome == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache ESPHome's ESP-IDF download
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/esphome
+          key: esphome-idf-${{ runner.os }}
+
+      - name: Install ESPHome
+        run: pip install esphome
+
+      - name: Supply placeholder secrets
+        # secrets.yaml is gitignored; the example has no real credentials and
+        # never reaches a board from here, so it's exactly what a compile
+        # check wants.
+        run: |
+          cp firmware/esphome-spa/secrets.yaml.example \
+             firmware/esphome-spa/secrets.yaml
+
+      - name: Compile
+        run: esphome compile firmware/esphome-spa/esp32-spa.yaml
