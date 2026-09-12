@@ -27,6 +27,28 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
+  # Decides what the expensive jobs need to do. Gating happens here, at the
+  # job level, and never with a paths filter on the triggers: a required check
+  # that never runs reports as permanently pending and blocks the merge, while
+  # a job skipped by `if:` reports a skipped conclusion that branch protection
+  # accepts.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      firmware: ${{ steps.filter.outputs.firmware }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pinned to a commit rather than a tag: a tag is a movable pointer, and
+      # this action can see the diff of every PR that lands here.
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        with:
+          filters: |
+            firmware:
+              - 'firmware/**'
+              - '.github/workflows/ci.yml'
+
   hardware:
     runs-on: ubuntu-latest
     container:
@@ -112,7 +134,13 @@ jobs:
       - name: Run the RS485 framer tests
         run: make -C firmware/v1/test run
 
+  # The only job worth gating: ~3 minutes, nearly all of it pulling the image.
+  # hardware (~45s) and firmware-tests (~3s) stay unconditional, since routing
+  # them through `changes` would cost more than it saves and keeps the required
+  # check as simple as possible.
   firmware-build:
+    needs: changes
+    if: needs.changes.outputs.firmware == 'true'
     runs-on: ubuntu-latest
     # Pinned to the IDF the project is developed against, not release-v6.1,
     # which moves under you.
