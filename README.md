@@ -27,8 +27,6 @@ Superseded and removed:
 - The MAX3485 in `hardware/esp32-spa` (renamed from `hardware/v1`), and V2's
   plan to interpose between panel and pack. The board no longer sits *in*
   the harness; it hangs off it in parallel.
-- `docs/Hardware_Architecture.drawio.png` and `docs/IOT_Architecture.drawio.png`,
-  both of which still draw the RS485 tap.
 
 Still true: the ESP32 DevKitC, the RJ45 breakout so nothing gets spliced,
 and the V2 antenna work. `firmware/esphome-spa` talks to Home Assistant
@@ -57,11 +55,91 @@ parallel and has to keep working.
 
 ### Hardware diagram
 
-![Hardware architecture](docs/Hardware_Architecture.drawio.png)
+The three planned board revisions (details in the roadmap below). All three
+tap the harness in parallel — nothing is spliced or interposed — so the
+existing panel-to-pack wiring keeps working whether or not this board is
+connected.
 
-The three planned board revisions (v1, v1.5, v2 — see the roadmap below).
-**Stale:** still drawn around the RS485 tap. Needs redrawing alongside the
-schematic.
+**V1 — ESP32 DevKitC:**
+
+```mermaid
+flowchart LR
+    classDef proc fill:#93c47d,stroke:#333,color:#000
+    classDef tap fill:#6fa8dc,stroke:#333,color:#000
+    classDef conn fill:#eeeeee,stroke:#333,color:#000
+    classDef existing fill:#f6b26b,stroke:#333,color:#000
+
+    USB["USB"]:::conn
+    ESP32["ESP32 DevKitC<br/>onboard USB-UART + 3.3V reg"]:::proc
+    DIV["Clock/Data dividers<br/>(input-only GPIOs)"]:::tap
+    OPTO["Button optocouplers<br/>(Warm/Cool/Light/Jets)"]:::tap
+    RJ45["RJ45 breakout +<br/>screw terminals<br/>(parallel tap, no splice)"]:::conn
+    PANEL["Topside Panel"]:::existing
+    PACK["Mach-7 Control Board"]:::existing
+
+    USB <--> ESP32
+    RJ45 -- "clock/data, 5V" --> DIV -- "3.3V" --> ESP32
+    ESP32 -- "GPIO drive" --> OPTO -- "switch closure" --> RJ45
+    RJ45 --- PANEL
+    RJ45 --- PACK
+    PANEL <-- "existing harness (6-signal)" --> PACK
+```
+
+**V1.5 — + water chemistry sensors:**
+
+```mermaid
+flowchart LR
+    classDef proc fill:#93c47d,stroke:#333,color:#000
+    classDef conn fill:#eeeeee,stroke:#333,color:#000
+    classDef purchased fill:#8e7cc3,stroke:#333,color:#000
+
+    USB["USB"]:::conn
+    ESP32["ESP32 DevKitC"]:::proc
+    TAPREF["To topside tap<br/>(dividers + optocouplers — see V1)"]:::conn
+    PHCB["pH Probe +<br/>Cond. Board (DFRobot)"]:::purchased
+    ORPCB["ORP Probe +<br/>Cond. Board (DFRobot)"]:::purchased
+
+    USB <--> ESP32
+    ESP32 <--> TAPREF
+    PHCB -- "analog, Gravity/JST" --> ESP32
+    ORPCB -- "analog, Gravity/JST" --> ESP32
+```
+
+**V2 — custom PCB:**
+
+```mermaid
+flowchart LR
+    classDef proc fill:#93c47d,stroke:#333,color:#000
+    classDef power fill:#cc4125,stroke:#333,color:#000
+    classDef tap fill:#6fa8dc,stroke:#333,color:#000
+    classDef fe fill:#76a5af,stroke:#333,color:#000
+    classDef conn fill:#eeeeee,stroke:#333,color:#000
+    classDef existing fill:#f6b26b,stroke:#333,color:#000
+    classDef purchased fill:#8e7cc3,stroke:#333,color:#000
+
+    USB["USB"]:::conn
+    PWR["Power Supply<br/>buck converter, 3.3V"]:::power
+    PROC["Processor<br/>ESP32-WROOM-32UE"]:::proc
+    DIVOPTO["Onboard dividers +<br/>optocouplers"]:::tap
+    RJ45["RJ45<br/>(splitter tap, panel keeps<br/>working if unplugged)"]:::conn
+    PANEL["Topside Panel"]:::existing
+    PACK["Mach-7 Control Board"]:::existing
+    AFE["Custom analog<br/>front-end"]:::fe
+    PHP["pH Probe (electrode)"]:::purchased
+    ORPP["ORP Probe (electrode)"]:::purchased
+
+    USB --> PWR
+    PWR --> PROC
+    PWR --> DIVOPTO
+    PROC <--> DIVOPTO
+    DIVOPTO <--> RJ45
+    RJ45 --- PANEL
+    RJ45 --- PACK
+    PANEL <-- "existing harness" --> PACK
+    PROC -- "ADC" --> AFE
+    AFE --- PHP
+    AFE --- ORPP
+```
 
 ### Hardware roadmap
 
@@ -137,13 +215,47 @@ reconnect-loop failure mode above.
 
 ## IoT architecture diagram
 
-![IoT architecture](docs/IOT_Architecture.drawio.png)
+```mermaid
+flowchart LR
+    classDef proc fill:#d9ead3,stroke:#333,color:#000
+    classDef tap fill:#c9daf8,stroke:#333,color:#000
+    classDef existing fill:#fce5cd,stroke:#333,color:#000
+    classDef ha fill:#9fc5e8,stroke:#333,color:#000
+    classDef planned fill:#f3f3f3,stroke:#999,color:#666
+    classDef phone fill:#fff2cc,stroke:#333,color:#000
 
-The runtime topology described in [`docs/wifi.md`](docs/wifi.md): the tap on
-the harness between the topside panel and the Mach-7 pack, the ESP32's MQTT
-link to Mosquitto, and the Node-RED/InfluxDB/Grafana stack on the Pi.
-**Stale:** still labels the tap RS485, and describes MQTT/Node-RED as this
-device's path rather than Home Assistant — see `firmware/esphome-spa`.
+    subgraph NODE["ESP32 Node"]
+        MCU["ESP32-DevKitC"]:::proc
+        TAP["Clock/Data dividers +<br/>button optocouplers"]:::tap
+        MCU <--> TAP
+    end
+
+    PANEL["Topside Panel"]:::existing
+    PACK["Mach-7 (RS-81)<br/>Spa Pack"]:::existing
+    TAP --- PANEL
+    TAP --- PACK
+    PANEL <-- "existing harness" --> PACK
+
+    subgraph PI["Raspberry Pi 4B"]
+        HA["Home Assistant<br/>ESPHome integration +<br/>spa-control-card"]:::ha
+        MQ["Mosquitto<br/>(planned, v1.5 chemistry sensors)"]:::planned
+        NR["Node-RED<br/>(planned, v1.5)"]:::planned
+    end
+
+    MCU -- "ESPHome API<br/>Noise-encrypted, WiFi" --> HA
+    HA --> PHONE["Phone / HA app<br/>on the LAN"]:::phone
+```
+
+The runtime topology: the tap on the harness between the topside panel and
+the Mach-7 pack (parallel, not interposed — see the hardware diagram above),
+the ESP32's Home Assistant API link, and Home Assistant on the Pi. Mosquitto
+and Node-RED are sketched as planned rather than wired up yet — the v1.5
+chemistry sensors don't have a Home Assistant-native path the way the panel
+decode does via `firmware/esphome-spa`, so they may end up going through
+MQTT/Node-RED instead once they exist. See
+[`docs/wifi.md`](docs/wifi.md) for the panel-interface reverse-engineering
+this is built on, and `firmware/esphome-spa`'s README for the Home
+Assistant setup.
 
 ## Docs
 
