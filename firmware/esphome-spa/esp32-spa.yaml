@@ -6,13 +6,13 @@
 # ../README.md.
 
 substitutions:
-  version: "3.2"
+  version: "1.0"
 
 esphome:
   name: esp32-spa
   friendly_name: esp32-spa
   project:
-    name: "kgstorm.esp32-spa"
+    name: "nmbarr.esp32-spa"
     version: ${version}
 
   on_boot:
