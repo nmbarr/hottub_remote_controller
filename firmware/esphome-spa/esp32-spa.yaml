@@ -6,7 +6,7 @@
 # ../README.md.
 
 substitutions:
-  version: "1.0"
+  version: "0.1"
 
 esphome:
   name: esp32-spa

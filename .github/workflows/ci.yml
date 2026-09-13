@@ -195,7 +195,14 @@ jobs:
              firmware/esphome-spa/secrets.yaml
 
       - name: Compile
-        run: esphome compile firmware/esphome-spa/esp32-spa.yaml
+        # The tag is the single source of truth for the version. -s overrides
+        # the `version` substitution in the YAML so the binary reports the same
+        # number the release artifacts below are named for; without it a v0.2
+        # release could ship a firmware that tells Home Assistant it is 0.1.
+        # The leading "v" is stripped so the tag v0.1 reports as 0.1.
+        run: |
+          esphome -s version "${GITHUB_REF_NAME#v}" \
+            compile firmware/esphome-spa/esp32-spa.yaml
 
       - name: Collect firmware binaries
         # factory.bin is a full-flash image (bootloader + partition table +
