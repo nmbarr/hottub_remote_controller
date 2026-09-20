@@ -1987,6 +1987,26 @@
 			(embedded_fonts no)
 		)
 	)
+	(text "Vx"
+		(exclude_from_sim no)
+		(at 181.61 77.47 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "107e1be9-21ff-45f6-944e-e33bea5a5311")
+	)
+	(text "Vx"
+		(exclude_from_sim no)
+		(at 181.61 57.15 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "22d1b430-3492-4c50-bd0f-b080f6fcbd47")
+	)
 	(text_box "5V is fed to the ESP32 by the hot tub from RJ45 pin 1"
 		(exclude_from_sim no)
 		(at 82.55 19.05 0)
@@ -2007,10 +2027,10 @@
 		)
 		(uuid "89a14b82-bce3-456a-8756-8c5dfdd10b7b")
 	)
-	(text_box "Vx = Vin * (10k / (6.8k + 10k)) = 2.98V"
+	(text_box "Vx = Vpin * (10k / (6.8k + 10k)) \nVx = 5V * (10k / 16.8k) = 2.98V"
 		(exclude_from_sim no)
-		(at 160.02 46.99 0)
-		(size 45.72 3.9483)
+		(at 157.48 44.45 0)
+		(size 45.72 5.9929)
 		(margins 0.9525 0.9525 0.9525 0.9525)
 		(stroke
 			(width 0)
@@ -2025,7 +2045,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "f416c05c-c30f-4b1a-9f5e-e47bf0b7c93b")
+		(uuid "d4f7e57c-059f-44c6-b44d-1eec4c24951b")
 	)
 	(junction
 		(at 97.79 147.32)
@@ -3262,7 +3282,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 176.53 80.518 90)
 			(hide yes)
 			(show_name no)
@@ -3511,7 +3531,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "149d2b21-6c2e-480e-b978-eef9dde25265")
-		(property "Reference" "R8"
+		(property "Reference" "R9"
 			(at 184.15 83.8199 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3533,7 +3553,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 179.832 85.09 90)
 			(hide yes)
 			(show_name no)
@@ -3575,7 +3595,7 @@
 		(instances
 			(project "esp32-spa"
 				(path "/ef020825-7448-4382-ac7c-ba8571f4d9dd"
-					(reference "R8")
+					(reference "R9")
 					(unit 1)
 				)
 			)
@@ -3924,7 +3944,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 67.31 136.398 90)
 			(hide yes)
 			(show_name no)
@@ -4006,7 +4026,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 179.832 64.77 90)
 			(hide yes)
 			(show_name no)
@@ -4085,7 +4105,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 67.31 149.098 90)
 			(hide yes)
 			(show_name no)
@@ -4144,7 +4164,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "6f140039-26eb-447f-9fd4-7e8494033a51")
-		(property "Reference" "R7"
+		(property "Reference" "R8"
 			(at 186.69 76.708 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4164,7 +4184,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 186.69 80.518 90)
 			(hide yes)
 			(show_name no)
@@ -4206,7 +4226,7 @@
 		(instances
 			(project "esp32-spa"
 				(path "/ef020825-7448-4382-ac7c-ba8571f4d9dd"
-					(reference "R7")
+					(reference "R8")
 					(unit 1)
 				)
 			)
@@ -4331,7 +4351,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 67.31 174.498 90)
 			(hide yes)
 			(show_name no)
@@ -4488,7 +4508,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 186.69 60.198 90)
 			(hide yes)
 			(show_name no)
@@ -4811,7 +4831,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 67.31 161.798 90)
 			(hide yes)
 			(show_name no)
@@ -4893,7 +4913,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_RJ:RJ45_OST_PJ012-8P8CX_Vertical"
 			(at 226.06 74.295 90)
 			(hide yes)
 			(show_name no)
@@ -5058,7 +5078,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "c6a75789-5839-4bfc-9c4f-6b944f4fefde")
-		(property "Reference" "R9"
+		(property "Reference" "R7"
 			(at 176.53 56.388 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5078,7 +5098,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 176.53 60.198 90)
 			(hide yes)
 			(show_name no)
@@ -5120,7 +5140,7 @@
 		(instances
 			(project "esp32-spa"
 				(path "/ef020825-7448-4382-ac7c-ba8571f4d9dd"
-					(reference "R9")
+					(reference "R7")
 					(unit 1)
 				)
 			)
@@ -5238,7 +5258,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_RJ:RJ45_OST_PJ012-8P8CX_Vertical"
 			(at 226.06 106.045 90)
 			(hide yes)
 			(show_name no)
