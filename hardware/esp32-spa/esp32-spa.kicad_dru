@@ -1,0 +1,53 @@
+(version 1)
+# JLCPCB standard 2-layer capabilities (no extra-cost options).
+# Source: https://jlcpcb.com/capabilities/pcb-capabilities. Re-check there
+# before ordering; JLC revises these.
+
+(rule "Track width"
+	(constraint track_width (min 0.127mm)))
+
+(rule "Copper clearance"
+	(constraint clearance (min 0.127mm)))
+
+(rule "Copper to edge"
+	(constraint edge_clearance (min 0.3mm)))
+
+(rule "Via hole"
+	(condition "A.Type == 'Via'")
+	(constraint hole_size (min 0.3mm)))
+
+(rule "Via diameter"
+	(condition "A.Type == 'Via'")
+	(constraint via_diameter (min 0.5mm)))
+
+(rule "PTH pad annular ring"
+	(condition "A.Type == 'Pad' && A.isPlated()")
+	(constraint annular_width (min 0.13mm)))
+
+(rule "NPTH hole"
+	(condition "A.Type == 'Pad' && !A.isPlated()")
+	(constraint hole_size (min 0.5mm)))
+
+(rule "Max drill"
+	(constraint hole_size (max 6.3mm)))
+
+(rule "Hole to hole, same net"
+	(constraint hole_to_hole (min 0.254mm)))
+
+(rule "Hole to hole, different nets"
+	(condition "A.Net != B.Net")
+	(constraint hole_to_hole (min 0.5mm)))
+
+(rule "Hole to copper"
+	(constraint hole_clearance (min 0.254mm)))
+
+(rule "Silkscreen text"
+	(layer "?.Silkscreen")
+	(condition "A.Type == 'Text' || A.Type == 'Text Box'")
+	(constraint text_thickness (min 0.15mm))
+	(constraint text_height (min 1mm)))
+
+(rule "Silkscreen to pad"
+	(layer outer)
+	(condition "A.Type == 'Pad' && B.Layer == '?.Silkscreen'")
+	(constraint silk_clearance (min 0.15mm)))

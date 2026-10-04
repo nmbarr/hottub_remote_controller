@@ -108,9 +108,7 @@ text_sensor:
                   id(filter_cycle_target) = x;
                 }
 
-# I2C bus for the water-chemistry ADC. Not part of kgstorm's board — added
-# for this project's v1.5 pH/ORP sensors. Confirm SDA/SCL pins against the
-# actual v1.5 hardware before flashing; these are placeholders.
+# I2C bus for the water-chemistry ADC. These are placeholders.
 i2c:
   sda: GPIO21
   scl: GPIO22
@@ -144,7 +142,6 @@ sensor:
             if (id(display_is_fahrenheit)) return (x - 32.0f) * 5.0f / 9.0f;
             return x;
 
-  # ===== WATER CHEMISTRY (added for this project, not part of upstream) =====
   # Placeholder calibration — needs real two-point buffer-solution readings
   # for the actual probe once it's on hand. Do not trust these values.
   - platform: ads1115

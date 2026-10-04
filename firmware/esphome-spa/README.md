@@ -2,19 +2,17 @@
 
 Replaces `firmware/v1`'s custom `esp-mqtt` firmware (now deleted): instead of
 writing the Balboa display decode from scratch, this vendors
-[kgstorm/Balboa-GS100-with-VL260-topside][kg] — the same reference
-implementation cited in [`docs/wifi.md`](../../docs/wifi.md#reference-implementation) —
-and runs it as upstream intended: talking to Home Assistant, controlled from
-the HA phone app, rather than through this project's Mosquitto/Node-RED
-stack.
+[kgstorm/Balboa-GS100-with-VL260-topside][kg] and runs it as upstream
+intended: talking to Home Assistant, controlled from the HA phone app, rather
+than through this project's Mosquitto/Node-RED stack.
 
-**Status: unconfirmed, do not flash yet.** kgstorm's decode is verified
-against a GS100 pack with VL200/VL400-series panels. This tub's pack is a
-Mach 7 (RS-81); whether it speaks the same protocol as the GS100 is still an
-open question — see
-[`docs/wifi.md#still-unconfirmed`](../../docs/wifi.md#still-unconfirmed).
-Do the scope/logic-analyzer check on RJ45 pins 5/6 before relying on
-anything here.
+**Status: buttons work, display decode doesn't.** Flashed and on the tub.
+Warm/Cool/Light/Jets presses from Home Assistant reach the panel. The display
+tap decodes nothing yet: every frame arrives fragmented (`Dropped N
+partial/incomplete frames`), so there's no temperature in HA. kgstorm's decode
+was verified on a GS100 pack with VL200/VL400-series panels; this tub is a
+Mach 7 (RS-81) with a VL240.
+See [`docs/logic-analyzer-debug.md`](../../docs/logic-analyzer-debug.md).
 
 ## Provenance
 
