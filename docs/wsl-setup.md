@@ -81,6 +81,46 @@ there's no need to hold BOOT while flashing.
 esphome run firmware/esphome-spa/esp32-spa.yaml -p /dev/ttyUSB0
 ```
 
+## Viewing logs
+
+`esphome logs` reads a running board without reflashing. Given no target it
+prompts between the serial port and the board's mDNS name:
+
+```console
+$ esphome logs firmware/esphome-spa/esp32-spa.yaml
+Found multiple options for logging, please choose one:
+  [1] /dev/ttyUSB0 (CP2102N USB to UART Bridge Controller)
+  [2] Over The Air (esp32-spa.local)
+```
+
+Name the target explicitly instead. Option `[2]` cannot resolve from WSL as
+set up here, and the prompt itself fails outright without a TTY (see
+Troubleshooting).
+
+Over serial:
+
+```bash
+esphome logs firmware/esphome-spa/esp32-spa.yaml -p /dev/ttyUSB0
+```
+
+Over the network, by address rather than name:
+
+```bash
+esphome logs firmware/esphome-spa/esp32-spa.yaml --device 10.0.0.136
+```
+
+That address comes from the `wifi:` banner the board prints on boot over
+serial. Because WiFi credentials are provisioned through the captive portal
+rather than baked into the build, it isn't known until the board has joined a
+network; a DHCP reservation against the MAC above keeps it from moving
+afterwards. Setting `use_address:` under `wifi:` makes it the default target
+and puts no credentials in the YAML:
+
+```yaml
+wifi:
+  use_address: 10.0.0.136
+```
+
 ## Troubleshooting
 
 - **`/dev/ttyUSB0` missing** — the attach lapsed. Re-run `usbipd attach --wsl
@@ -92,3 +132,21 @@ esphome run firmware/esphome-spa/esp32-spa.yaml -p /dev/ttyUSB0
   serial monitor and retry.
 - **usbipd reports the device shared but attach errors about drivers** —
   `usbipd unbind --busid 2-4`, then `usbipd bind --force --busid 2-4`.
+- **Two `/dev/ttyUSB*` nodes, and the lower-numbered one won't open** — a
+  lapsed attach can leave a stale node behind; `dmesg` shows `cp210x_open -
+  Unable to enable UART` against it. `usbipd list` names the busid actually
+  `Attached`; use the node from the most recent `cp210x converter now attached
+  to ...` line.
+- **`esphome logs` ends in `EOFError: EOF when reading a line`** — the target
+  chooser had no TTY to read, because the command ran non-interactively or its
+  output was piped. Pass `-p` or `--device` explicitly.
+- **The `esp32-spa.local` / Over The Air option never connects** — WSL has no
+  mDNS resolver: `hosts:` in `/etc/nsswitch.conf` lists only `files dns`, with
+  no `mdns`, and avahi-daemon isn't installed. WSL2's NATed network doesn't
+  carry mDNS multicast off the LAN either. `getent hosts esp32-spa.local`
+  returning nothing confirms it. Use the IP.
+- **Serial logs print `Starting log output ...` and then nothing** — not a
+  hang. An idle, already-connected node writes almost nothing to UART; the
+  interesting output is the boot banner. Press EN/RST to get it, but note that
+  a reset re-runs `on_boot`, which fires `spa_mode_boot_read` — three real
+  WARM + LIGHT presses on the topside panel.
