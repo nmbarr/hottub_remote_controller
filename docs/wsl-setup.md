@@ -83,19 +83,8 @@ esphome run firmware/esphome-spa/esp32-spa.yaml -p /dev/ttyUSB0
 
 ## Viewing logs
 
-`esphome logs` reads a running board without reflashing. Given no target it
-prompts between the serial port and the board's mDNS name:
-
-```console
-$ esphome logs firmware/esphome-spa/esp32-spa.yaml
-Found multiple options for logging, please choose one:
-  [1] /dev/ttyUSB0 (CP2102N USB to UART Bridge Controller)
-  [2] Over The Air (esp32-spa.local)
-```
-
-Name the target explicitly instead. Option `[2]` cannot resolve from WSL as
-set up here, and the prompt itself fails outright without a TTY (see
-Troubleshooting).
+`esphome logs` reads a running board without reflashing. Always pass `-p` or
+`--device`; see Troubleshooting.
 
 Over serial:
 
@@ -109,12 +98,8 @@ Over the network, by address rather than name:
 esphome logs firmware/esphome-spa/esp32-spa.yaml --device 10.0.0.136
 ```
 
-That address comes from the `wifi:` banner the board prints on boot over
-serial. Because WiFi credentials are provisioned through the captive portal
-rather than baked into the build, it isn't known until the board has joined a
-network; a DHCP reservation against the MAC above keeps it from moving
-afterwards. Setting `use_address:` under `wifi:` makes it the default target
-and puts no credentials in the YAML:
+The IP is in the `wifi:` banner the board prints over serial on boot.
+Setting `use_address:` under `wifi:` makes it the default target:
 
 ```yaml
 wifi:

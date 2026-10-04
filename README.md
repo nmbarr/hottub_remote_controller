@@ -30,25 +30,20 @@ sensors.
 `hardware/esp32-spa` contains the KiCad project.
 
 - **ESP32-DevKitC** as the main controller.
-- Two resistor-divided inputs for the display clock and data.
-- Four optocouplers to bridge the button contacts.
 
 ### Hardware diagram
 
 ![Hardware architecture](docs/Hardware_Architecture.drawio.png)
-
-Three planned board revisions (v1, v1.5, v2), described below.
 
 ### Hardware roadmap
 
 - **V1 — ESP32 DevKitC.** An ESP32 DevKitC (using its onboard USB-UART and
   3.3V regulator) taps the topside harness between the front panel and the
   Mach-7 control board, through an off-the-shelf RJ45 breakout board and
-  screw terminals — no cutting or splicing of the existing harness. Two
-  resistor-divided inputs read the display clock and data; four
-  optocouplers bridge the button contacts. The read-only half comes first:
-  it needs no optocouplers and touches nothing the pack can act on, so it
-  proves the interface before anything can press a button.
+  screw terminals — no cutting or splicing of the existing harness. The
+  read-only half comes first: it needs no optocouplers and touches nothing
+  the pack can act on, so it proves the interface before anything can press
+  a button.
 - **V1.5 — + water chemistry sensors.** Same V1 hardware and tap, with
   off-the-shelf DFRobot pH and ORP probes (each with its own analog
   conditioning board) wired into the DevKitC's analog inputs via
@@ -99,7 +94,7 @@ pip install esphome
 esphome run firmware/esphome-spa/esp32-spa.yaml   # first flash, over USB
 ```
 
-Target wiring for the topside tap. The panel harness is an 8-pin RJ45;
+Target wiring for the topside tap. The panel harness is an 8-pin RJ45.
 
 | RJ45 pin | Signal | ESP32 | Via |
 | ---: | --- | --- | --- |
@@ -117,7 +112,7 @@ Clock and data go on GPIO34/35 because those are input-only. They have no intern
 The signals are 5V. Divide them: 6.8k/10k lands at ~2.98V, with headroom
 under the ESP32's 3.6V absolute maximum even if the pack's rail sits high.
 Buttons go through a PC817B each, 220Ω on the LED, collector to +5V and
-emitter to the button line
+emitter to the button line.
 
 If you're developing in WSL2, the board is attached to Windows and its
 serial port has to be forwarded in before `esphome` can see it — see
@@ -155,10 +150,6 @@ is different and safe: the workflow still triggers and the job still
 reports, just with a skipped conclusion, which branch protection accepts.
 That is why `esphome-build` is gated that way rather than with a paths
 filter.
-
-A status check's identity comes from the job name, not the workflow file
-name, so renaming the file from `kicad-checks.yml` left the required check
-intact.
 
 The `hardware` job seeds KiCad's default global library tables before
 running so stock libraries resolve the same as on a normal install; only
