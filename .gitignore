@@ -54,3 +54,6 @@ fp-info-cache
 *.drawio.dtmp
 *.drawio.png.bkp
 *.drawio.png.dtmp
+
+# Local Python virtualenv (esphome CLI)
+.venv/
