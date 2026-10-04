@@ -2991,7 +2991,7 @@
 		)
 		(uuid "2cef7624-cd6a-43a3-91f5-9a428da4513d")
 	)
-	(label "RJ45_PIN8"
+	(label "RJ45_PIN3"
 		(at 109.22 152.4 180)
 		(effects
 			(font
@@ -3081,7 +3081,7 @@
 		)
 		(uuid "6e053c59-079e-4f2d-aafc-7117f04f9048")
 	)
-	(label "RJ45_PIN3"
+	(label "RJ45_PIN2"
 		(at 109.22 165.1 180)
 		(effects
 			(font
@@ -3101,7 +3101,7 @@
 		)
 		(uuid "78bbcecf-ad48-4a4a-8758-579c972a64b1")
 	)
-	(label "RJ45_PIN2"
+	(label "RJ45_PIN7"
 		(at 109.22 139.7 180)
 		(effects
 			(font
@@ -3181,7 +3181,7 @@
 		)
 		(uuid "9b5c4a77-b7ef-4d83-9426-db91f7fd5842")
 	)
-	(label "RJ45_PIN7"
+	(label "RJ45_PIN8"
 		(at 109.22 177.8 180)
 		(effects
 			(font

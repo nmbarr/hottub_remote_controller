@@ -107,10 +107,10 @@ Target wiring for the topside tap. The panel harness is an 8-pin RJ45;
 | 4 | GND | `GND` | — |
 | 6 | Clock | GPIO35 | divider, 220Ω series |
 | 5 | Display data | GPIO34 | divider |
-| 2 | Warm | GPIO25 | optocoupler |
-| 8 | Cool | GPIO26 | optocoupler |
-| 3 | Light | GPIO27 | optocoupler |
-| 7 | Jets/blower | GPIO32 | optocoupler |
+| 7 | Warm | GPIO25 | optocoupler |
+| 3 | Cool | GPIO26 | optocoupler |
+| 2 | Light | GPIO27 | optocoupler |
+| 8 | Jets/blower | GPIO32 | optocoupler |
 
 Clock and data go on GPIO34/35 because those are input-only. They have no internal pull-ups, so they are pulled up externally.
 
